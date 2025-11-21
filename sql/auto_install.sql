@@ -75,8 +75,7 @@ CREATE TABLE `civicrm_payment_webhook` (
   `processed_at` timestamp COMMENT 'When event was processed',
   `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When webhook was received',
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `index_event_id`(event_id),
-  INDEX `index_processor_type`(processor_type),
+  UNIQUE INDEX `UI_event_processor`(event_id, processor_type),
   INDEX `index_event_type`(event_type),
   CONSTRAINT FK_civicrm_payment_webhook_payment_attempt_id FOREIGN KEY (`payment_attempt_id`) REFERENCES `civicrm_payment_attempt`(`id`) ON DELETE SET NULL)
 ENGINE=InnoDB;

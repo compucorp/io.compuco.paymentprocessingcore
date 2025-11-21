@@ -31,11 +31,6 @@
       <label>Event ID</label>
     </html>
   </field>
-  <index>
-    <name>index_event_id</name>
-    <fieldName>event_id</fieldName>
-    <unique>true</unique>
-  </index>
 
   <field>
     <name>processor_type</name>
@@ -48,9 +43,12 @@
       <label>Processor Type</label>
     </html>
   </field>
+
   <index>
-    <name>index_processor_type</name>
+    <name>UI_event_processor</name>
+    <fieldName>event_id</fieldName>
     <fieldName>processor_type</fieldName>
+    <unique>true</unique>
   </index>
 
   <field>
