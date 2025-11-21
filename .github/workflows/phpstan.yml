@@ -84,23 +84,13 @@ jobs:
                 - tests/bootstrap.php
             scanFiles:
               - paymentprocessingcore.civix.php
-              - \$GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/Civi.php
+              - $GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/Civi.php
               - tests/phpunit/BaseHeadlessTest.php
             scanDirectories:
               - CRM/Paymentprocessingcore/DAO
-              - \$GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/Civi
-              - \$GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/CRM
-              - \$GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/api
+              - $GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/Civi
+              - $GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/CRM
+              - $GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/api
               - tests
-            ignoreErrors:
-              # Ignore missing type hints globally (common in legacy code and tests)
-              - '#Method .* has no return type specified#'
-              - '#Method .* has parameter .* with no type specified#'
-              - '#Property .* has no type specified#'
-              - '#return type has no value type specified in iterable type array#'
-              - '#has parameter .* with no value type specified in iterable type array#'
-              # Ignore common CiviCRM patterns
-              - '#does not accept mixed#'
-              - '#PHPDoc tag @throws with type CiviCRM_API3_Exception is not subtype of Throwable#'
           EOF
           php /tmp/phpstan.phar analyse -c phpstan-ci.neon --memory-limit=1G --error-format=github
