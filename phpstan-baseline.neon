@@ -1,0 +1,621 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_DAO_PaymentAttempt\\:\\:find\\(\\)\\.$#"
+			count: 3
+			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
+
+		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_DAO_PaymentAttempt\\:\\:toArray\\(\\)\\.$#"
+			count: 3
+			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttempt\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttempt\\:\\:getStatuses\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
+
+		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:find\\(\\)\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:toArray\\(\\)\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:findByEventId\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:getStatuses\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Parameter \\#3 \\$id of static method CRM_Utils_Hook\\:\\:pre\\(\\) expects int\\|null, mixed given\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Parameter \\#3 \\$objectId of static method CRM_Utils_Hook\\:\\:post\\(\\) expects int, int\\|string\\|null given\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method BaseHeadlessTest\\:\\:setUpHeadless\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/BaseHeadlessTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Cannot access property \\$contact_id on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Cannot access property \\$contribution_id on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Cannot access property \\$id on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 3
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Cannot access property \\$processor_payment_id on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Cannot access property \\$processor_session_id on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Cannot access property \\$processor_type on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Cannot access property \\$status on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testContributionIdUniqueConstraint\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testCreate\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindByContributionId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindByContributionIdNotFound\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindByPaymentId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindByPaymentIdNotFound\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindByPaymentIdWrongProcessorType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindBySessionId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindBySessionIdNotFound\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testFindBySessionIdWrongProcessorType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testGetStatuses\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttemptTest\\:\\:testUpdate\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$event_id on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 3
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$event_type on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$id on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$id on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 4
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$payment_attempt_id on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$processed_at on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$processor_type on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$result on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Cannot access property \\$status on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
+			count: 3
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testAllStatuses\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testCreate\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testCreateWithoutPaymentAttempt\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testDifferentProcessorTypes\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testFindByEventId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testFindByEventIdNotFound\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testGetStatuses\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testIsProcessedReturnsFalseForErrorEvent\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testIsProcessedReturnsFalseForNewEvent\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testIsProcessedReturnsFalseForNonExistentEvent\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testIsProcessedReturnsTrueForProcessedEvent\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testIsProcessedReturnsTrueForProcessingEvent\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testUniqueEventIdConstraint\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:testUpdate\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Property CRM_Paymentprocessingcore_BAO_PaymentWebhookTest\\:\\:\\$attemptId \\(int\\) does not accept int\\|string\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 5
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\PaymentProcessor\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Call to static method delete\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testAllStatuses\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testCascadeDeleteWithContribution\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testCreatePaymentAttemptWithAllFields\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testCreatePaymentAttemptWithRequiredFields\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testCreateWithoutContributionIdFails\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testCreateWithoutProcessorTypeFails\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testDelete\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testDifferentProcessorTypes\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testFilterByProcessorTypeAndStatus\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testGetByContributionId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testGetByProcessorSessionId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testSetNullWhenContactDeleted\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testUniqueContributionConstraint\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentAttemptTest\\:\\:testUpdateStatus\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Offset 'contact_id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 13
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Offset 'processor_payment_id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Offset 'processor_session_id' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Offset 'processor_type' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Offset 'status' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$exception of method PHPUnit\\\\Framework\\\\TestCase\\:\\:expectException\\(\\) expects class\\-string\\<Throwable\\>, string given\\.$#"
+			count: 3
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Property Civi_Api4_PaymentAttemptTest\\:\\:\\$contactId has no type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Property Civi_Api4_PaymentAttemptTest\\:\\:\\$contributionId has no type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Property Civi_Api4_PaymentAttemptTest\\:\\:\\$paymentProcessorId has no type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testAllResults\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testAllStatuses\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testCreatePaymentWebhookWithAllFields\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testCreatePaymentWebhookWithRequiredFields\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testCreateWithoutEventIdFails\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testCreateWithoutEventTypeFails\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testCreateWithoutPaymentAttempt\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testCreateWithoutProcessorTypeFails\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testDelete\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testDifferentProcessorTypes\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testErrorLogging\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testFilterByStatus\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testGetByEventId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testGetByProcessorAndEventType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testSetNullWhenPaymentAttemptDeleted\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testUniqueEventIdConstraint\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testUpdateStatus\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'error_log' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'event_id' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'event_type' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 13
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'payment_attempt_id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'processed_at' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'processor_type' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'result' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'status' does not exist on array\\|null\\.$#"
+			count: 3
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$exception of method PHPUnit\\\\Framework\\\\TestCase\\:\\:expectException\\(\\) expects class\\-string\\<Throwable\\>, string given\\.$#"
+			count: 4
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Property Civi_Api4_PaymentWebhookTest\\:\\:\\$attemptId has no type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Property Civi_Api4_PaymentWebhookTest\\:\\:\\$contactId has no type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Property Civi_Api4_PaymentWebhookTest\\:\\:\\$contributionId has no type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Function cv\\(\\) should return string but returns mixed\\.$#"
+			count: 1
+			path: tests/phpunit/bootstrap.php
+
+		-
+			message: "#^Function cv\\(\\) should return string but returns string\\|false\\.$#"
+			count: 2
+			path: tests/phpunit/bootstrap.php
+
+		-
+			message: "#^Parameter \\#1 \\$arg of function escapeshellarg expects string, string\\|false given\\.$#"
+			count: 1
+			path: tests/phpunit/bootstrap.php
+
+		-
+			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
+			count: 1
+			path: tests/phpunit/bootstrap.php
+
+		-
+			message: "#^Parameter \\#1 \\$process of function proc_close expects resource, resource\\|false given\\.$#"
+			count: 1
+			path: tests/phpunit/bootstrap.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#"
+			count: 2
+			path: tests/phpunit/bootstrap.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of function ini_set expects string, int given\\.$#"
+			count: 1
+			path: tests/phpunit/bootstrap.php
