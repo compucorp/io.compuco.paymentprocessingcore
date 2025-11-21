@@ -41,6 +41,10 @@ jobs:
         with:
           path: ${{ env.CIVICRM_EXTENSIONS_DIR }}/io.compuco.paymentprocessingcore
 
+      - name: Install extension dependencies
+        working-directory: ${{ env.CIVICRM_EXTENSIONS_DIR }}/io.compuco.paymentprocessingcore
+        run: composer install
+
       - name: Enable Payment Processing Core extension
         working-directory: ${{ env.CIVICRM_EXTENSIONS_DIR }}
         run: cv en paymentprocessingcore
