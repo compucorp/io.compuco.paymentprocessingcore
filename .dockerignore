@@ -1,0 +1,8 @@
+.git
+.idea
+vendor/
+civicrm-core/
+.phpunit.result.cache
+bin/civicrm/
+bin/phpcbf.phar
+bin/phpcs.phar
