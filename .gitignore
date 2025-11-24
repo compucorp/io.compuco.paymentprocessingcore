@@ -1,0 +1,13 @@
+/vendor/
+.env
+civicrm-core/
+.idea
+.claude/
+.phpunit.result.cache
+bin/civicrm/
+bin/phpcbf.phar
+bin/phpcs.phar
+phpstan_errors.log
+phpstan_output.log
+*test_output.log
+lint_output.log

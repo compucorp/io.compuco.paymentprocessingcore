@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<table>
+  <base>CRM/Paymentprocessingcore</base>
+  <class>PaymentWebhook</class>
+  <name>civicrm_payment_webhook</name>
+  <comment>Webhook event log for de-duplication and idempotency across all processors</comment>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Unique ID</comment>
+    <html>
+      <type>Number</type>
+    </html>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>event_id</name>
+    <type>varchar</type>
+    <length>255</length>
+    <required>true</required>
+    <comment>Processor event ID (evt_... for Stripe, evt_... for GoCardless)</comment>
+    <html>
+      <type>Text</type>
+      <label>Event ID</label>
+    </html>
+  </field>
+
+  <field>
+    <name>processor_type</name>
+    <type>varchar</type>
+    <length>50</length>
+    <required>true</required>
+    <comment>Processor type: 'stripe', 'gocardless', 'itas', etc.</comment>
+    <html>
+      <type>Text</type>
+      <label>Processor Type</label>
+    </html>
+  </field>
+
+  <index>
+    <name>UI_event_processor</name>
+    <fieldName>event_id</fieldName>
+    <fieldName>processor_type</fieldName>
+    <unique>true</unique>
+  </index>
+
+  <field>
+    <name>event_type</name>
+    <type>varchar</type>
+    <length>100</length>
+    <required>true</required>
+    <comment>Event type (e.g. checkout.session.completed, payment_intent.succeeded)</comment>
+    <html>
+      <type>Text</type>
+      <label>Event Type</label>
+    </html>
+  </field>
+  <index>
+    <name>index_event_type</name>
+    <fieldName>event_type</fieldName>
+  </index>
+
+  <field>
+    <name>payment_attempt_id</name>
+    <type>int unsigned</type>
+    <required>false</required>
+    <comment>FK to Payment Attempt</comment>
+    <html>
+      <type>EntityRef</type>
+      <label>Payment Attempt</label>
+    </html>
+  </field>
+  <foreignKey>
+    <name>payment_attempt_id</name>
+    <table>civicrm_payment_attempt</table>
+    <key>id</key>
+    <onDelete>SET NULL</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>status</name>
+    <type>varchar</type>
+    <length>25</length>
+    <required>true</required>
+    <default>'new'</default>
+    <comment>Processing status: new, processing, processed, error</comment>
+    <pseudoconstant>
+      <callback>CRM_Paymentprocessingcore_BAO_PaymentWebhook::getStatuses</callback>
+    </pseudoconstant>
+    <html>
+      <type>Select</type>
+      <label>Status</label>
+    </html>
+  </field>
+
+  <field>
+    <name>result</name>
+    <type>varchar</type>
+    <length>50</length>
+    <comment>Processing result: applied, noop, ignored_out_of_order, error</comment>
+    <html>
+      <type>Text</type>
+      <label>Result</label>
+    </html>
+  </field>
+
+  <field>
+    <name>error_log</name>
+    <type>text</type>
+    <comment>Error details if processing failed</comment>
+    <html>
+      <type>TextArea</type>
+      <label>Error Log</label>
+    </html>
+  </field>
+
+  <field>
+    <name>processed_at</name>
+    <type>timestamp</type>
+    <comment>When event was processed</comment>
+    <html>
+      <type>Select Date</type>
+      <label>Processed At</label>
+    </html>
+  </field>
+
+  <field>
+    <name>created_date</name>
+    <type>timestamp</type>
+    <required>true</required>
+    <default>CURRENT_TIMESTAMP</default>
+    <comment>When webhook was received</comment>
+    <html>
+      <type>Select Date</type>
+      <label>Created Date</label>
+    </html>
+  </field>
+</table>
