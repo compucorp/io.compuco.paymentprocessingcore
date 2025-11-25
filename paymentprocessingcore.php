@@ -32,6 +32,21 @@ function paymentprocessingcore_civicrm_enable(): void {
   _paymentprocessingcore_civix_civicrm_enable();
 }
 
+/**
+ * Implements hook_civicrm_container().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_container/
+ */
+function paymentprocessingcore_civicrm_container($container): void {
+  $containers = [
+    new \Civi\Paymentprocessingcore\Hook\Container\ServiceContainer($container),
+  ];
+
+  foreach ($containers as $containerInstance) {
+    $containerInstance->register();
+  }
+}
+
 // --- Functions below this ship commented out. Uncomment as required. ---
 
 /**
