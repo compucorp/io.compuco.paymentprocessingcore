@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<table>
+  <base>CRM/Paymentprocessingcore</base>
+  <class>PaymentProcessorCustomer</class>
+  <name>civicrm_payment_processor_customer</name>
+  <comment>Stores payment processor customer IDs for all processors (Stripe, GoCardless, ITAS, etc.)</comment>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Unique ID</comment>
+    <html>
+      <type>Number</type>
+    </html>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>payment_processor_id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>FK to Payment Processor</comment>
+    <html>
+      <type>Select</type>
+      <label>Payment Processor</label>
+    </html>
+  </field>
+  <foreignKey>
+    <name>payment_processor_id</name>
+    <table>civicrm_payment_processor</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+  <index>
+    <name>index_payment_processor_id</name>
+    <fieldName>payment_processor_id</fieldName>
+  </index>
+
+  <field>
+    <name>processor_customer_id</name>
+    <type>varchar</type>
+    <length>255</length>
+    <required>true</required>
+    <comment>Customer ID from payment processor (e.g., cus_... for Stripe, cu_... for GoCardless)</comment>
+    <html>
+      <type>Text</type>
+      <label>Processor Customer ID</label>
+    </html>
+  </field>
+  <index>
+    <name>index_processor_customer_id</name>
+    <fieldName>processor_customer_id</fieldName>
+  </index>
+
+  <field>
+    <name>contact_id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>FK to Contact</comment>
+    <html>
+      <type>EntityRef</type>
+      <label>Contact</label>
+    </html>
+  </field>
+  <foreignKey>
+    <name>contact_id</name>
+    <table>civicrm_contact</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+  <index>
+    <name>index_contact_id</name>
+    <fieldName>contact_id</fieldName>
+  </index>
+
+  <!-- UNIQUE CONSTRAINTS -->
+  <index>
+    <name>unique_contact_processor</name>
+    <fieldName>contact_id</fieldName>
+    <fieldName>payment_processor_id</fieldName>
+    <unique>true</unique>
+  </index>
+
+  <index>
+    <name>unique_processor_customer</name>
+    <fieldName>payment_processor_id</fieldName>
+    <fieldName>processor_customer_id</fieldName>
+    <unique>true</unique>
+  </index>
+
+  <field>
+    <name>created_date</name>
+    <type>timestamp</type>
+    <required>true</required>
+    <default>CURRENT_TIMESTAMP</default>
+    <comment>When customer record was created</comment>
+    <html>
+      <type>Select Date</type>
+      <label>Created Date</label>
+    </html>
+  </field>
+
+  <field>
+    <name>updated_date</name>
+    <type>timestamp</type>
+    <required>true</required>
+    <default>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</default>
+    <comment>Last updated</comment>
+    <html>
+      <type>Select Date</type>
+      <label>Updated Date</label>
+    </html>
+  </field>
+</table>
