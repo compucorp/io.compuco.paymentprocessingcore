@@ -21,6 +21,21 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
 
 		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:find\\(\\)\\.$#"
+			count: 2
+			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
+
+		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:toArray\\(\\)\\.$#"
+			count: 2
+			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
+
+		-
 			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:find\\(\\)\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
@@ -54,6 +69,141 @@ parameters:
 			message: "#^Parameter \\#3 \\$objectId of static method CRM_Utils_Hook\\:\\:post\\(\\) expects int, int\\|string\\|null given\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/ContributionCompletionException.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Exception\\\\ContributionCompletionException\\:\\:__construct\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/ContributionCompletionException.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Exception\\\\ContributionCompletionException\\:\\:getContext\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/ContributionCompletionException.php
+
+		-
+			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Exception\\\\ContributionCompletionException\\:\\:\\$context type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/ContributionCompletionException.php
+
+		-
+			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Exception\\\\PaymentProcessorCustomerException\\:\\:__construct\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Exception\\\\PaymentProcessorCustomerException\\:\\:getContext\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
+
+		-
+			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Exception\\\\PaymentProcessorCustomerException\\:\\:\\$context type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
+
+		-
+			message: "#^Call to method setDefinition\\(\\) on an unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Component\\\\DependencyInjection\\\\Definition not found\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Parameter \\$container of method Civi\\\\Paymentprocessingcore\\\\Hook\\\\Container\\\\ServiceContainer\\:\\:__construct\\(\\) has invalid type Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Hook\\\\Container\\\\ServiceContainer\\:\\:\\$container has unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder as its type\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Call to method getExtraParams\\(\\) on an unknown class CiviCRM_API3_Exception\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Call to method getMessage\\(\\) on an unknown class CiviCRM_API3_Exception\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Call to method warning\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class Civi\\\\Api4\\\\ContributionPage\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Caught class CiviCRM_API3_Exception not found\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionService\\:\\:completeTransaction\\(\\) has parameter \\$contribution with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionService\\:\\:getContribution\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionService\\:\\:isAlreadyCompleted\\(\\) has parameter \\$contribution with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionService\\:\\:isPending\\(\\) has parameter \\$contribution with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionService\\:\\:shouldSendReceipt\\(\\) has parameter \\$contribution with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
+
+		-
+			message: "#^Call to method debug\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerService.php
+
+		-
+			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerService.php
+
+		-
+			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 4
+			path: Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerService.php
 
 		-
 			message: "#^Method BaseHeadlessTest\\:\\:setUpHeadless\\(\\) has no return type specified\\.$#"
@@ -431,6 +581,56 @@ parameters:
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
 
 		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\PaymentProcessor\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:skipTestCascadeDeleteWhenContactDeleted\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:testCreatePaymentProcessorCustomerWithRequiredFields\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:testDeleteCustomer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:testQueryByContactAndProcessor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:testUniqueConstraintContactProcessor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:testUniqueConstraintProcessorCustomerId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:testUpdateCustomer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 9
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
+			message: "#^Offset 'processor_customer…' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
+
+		-
 			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
@@ -584,6 +784,96 @@ parameters:
 			message: "#^Property Civi_Api4_PaymentWebhookTest\\:\\:\\$contributionId has no type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\ContributionPage\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Call to static method get\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Call to static method update\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionServiceTest\\:\\:\\$contributionPageId is never read, only written\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionServiceTest\\:\\:\\$service \\(Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionService\\) does not accept mixed\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\PaymentProcessor\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerServiceTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildCancelUrl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildErrorUrl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildEventCancelUrl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildEventSuccessUrl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildIpnUrlWithGoCardlessRedirectFlowId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildIpnUrlWithMultipleParams\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildIpnUrlWithStripeSessionId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildIpnUrlWithoutParams\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildSuccessUrlWithAdditionalParams\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
+
+		-
+			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildSuccessUrlWithBasicParams\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Utils/PaymentUrlBuilderTest.php
 
 		-
 			message: "#^Function cv\\(\\) should return string but returns mixed\\.$#"

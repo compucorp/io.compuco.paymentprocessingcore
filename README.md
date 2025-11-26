@@ -52,12 +52,13 @@ This extension provides infrastructure for payment processor extensions. See the
 
 ### For Payment Processor Developers
 
-The extension provides two main entities via API4:
+The extension provides three main entities via API4:
 
 - `PaymentAttempt` - Track payment sessions and attempts
 - `PaymentWebhook` - Log and deduplicate webhook events
+- `PaymentProcessorCustomer` - Store customer IDs across processors
 
-Example usage:
+#### Example: Payment Attempts
 
 ```php
 use Civi\Api4\PaymentAttempt;
@@ -71,6 +72,73 @@ $attempt = PaymentAttempt::create(FALSE)
   ->execute()
   ->first();
 ```
+
+#### Example: Contribution Completion Service
+
+```php
+// Get service from container
+$service = \Civi::service('paymentprocessingcore.contribution_completion');
+
+// Complete a pending contribution
+try {
+  $result = $service->complete(
+    $contributionId,      // CiviCRM contribution ID
+    $transactionId,       // Payment processor transaction ID (e.g., ch_123)
+    $feeAmount,          // Optional: Fee amount (e.g., 2.50)
+    $sendReceipt         // Optional: TRUE/FALSE/NULL (NULL = auto-detect from contribution page)
+  );
+
+  if ($result['success']) {
+    // Contribution completed successfully
+  }
+}
+catch (\Civi\Paymentprocessingcore\Exception\ContributionCompletionException $e) {
+  // Handle error
+  $context = $e->getContext();
+}
+```
+
+**Features:**
+- ✅ Idempotent (safe to call multiple times)
+- ✅ Automatically handles accounting entries via `Contribution.completetransaction` API
+- ✅ Auto-detects receipt settings from contribution page
+- ✅ Records payment processor fees
+- ✅ Detailed error messages with context
+
+#### Example: Customer ID Management
+
+```php
+// Get service from container
+$customerService = \Civi::service('paymentprocessingcore.payment_processor_customer');
+
+// Get or create customer ID
+try {
+  $customerId = $customerService->getOrCreateCustomerId(
+    $contactId,
+    $paymentProcessorId,
+    function() use ($stripeClient, $email, $name) {
+      // This callback only runs if customer doesn't exist
+      $customer = $stripeClient->customers->create([
+        'email' => $email,
+        'name' => $name,
+      ]);
+      return $customer->id;
+    }
+  );
+
+  // Use $customerId in payment flow
+}
+catch (\Civi\Paymentprocessingcore\Exception\PaymentProcessorCustomerException $e) {
+  // Handle error
+  $context = $e->getContext();
+}
+```
+
+**Features:**
+- ✅ Prevents duplicate customers across payment processors
+- ✅ Reuses existing customers (reduces API calls)
+- ✅ Works with Stripe, GoCardless, ITAS, Deluxe, etc.
+- ✅ Simple callback pattern for customer creation
 
 ### For CiviCRM Administrators
 

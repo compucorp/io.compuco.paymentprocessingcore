@@ -18,6 +18,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `civicrm_payment_webhook`;
+DROP TABLE IF EXISTS `civicrm_payment_processor_customer`;
 DROP TABLE IF EXISTS `civicrm_payment_attempt`;
 
 SET FOREIGN_KEY_CHECKS=1;
@@ -54,6 +55,30 @@ CREATE TABLE `civicrm_payment_attempt` (
   CONSTRAINT FK_civicrm_payment_attempt_contribution_id FOREIGN KEY (`contribution_id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE,
   CONSTRAINT FK_civicrm_payment_attempt_contact_id FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL,
   CONSTRAINT FK_civicrm_payment_attempt_payment_processor_id FOREIGN KEY (`payment_processor_id`) REFERENCES `civicrm_payment_processor`(`id`) ON DELETE SET NULL)
+ENGINE=InnoDB;
+
+-- /*******************************************************
+-- *
+-- * civicrm_payment_processor_customer
+-- *
+-- * Stores payment processor customer IDs for all processors (Stripe, GoCardless, ITAS, etc.)
+-- *
+-- *******************************************************/
+CREATE TABLE `civicrm_payment_processor_customer` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique ID',
+  `payment_processor_id` int unsigned NOT NULL COMMENT 'FK to Payment Processor',
+  `processor_customer_id` varchar(255) NOT NULL COMMENT 'Customer ID from payment processor (e.g., cus_... for Stripe, cu_... for GoCardless)',
+  `contact_id` int unsigned NOT NULL COMMENT 'FK to Contact',
+  `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When customer record was created',
+  `updated_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Last updated',
+  PRIMARY KEY (`id`),
+  INDEX `index_payment_processor_id`(payment_processor_id),
+  INDEX `index_processor_customer_id`(processor_customer_id),
+  INDEX `index_contact_id`(contact_id),
+  UNIQUE INDEX `unique_contact_processor`(contact_id, payment_processor_id),
+  UNIQUE INDEX `unique_processor_customer`(payment_processor_id, processor_customer_id),
+  CONSTRAINT FK_civicrm_payment_processor_customer_payment_processor_id FOREIGN KEY (`payment_processor_id`) REFERENCES `civicrm_payment_processor`(`id`) ON DELETE CASCADE,
+  CONSTRAINT FK_civicrm_payment_processor_customer_contact_id FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE CASCADE)
 ENGINE=InnoDB;
 
 -- /*******************************************************

@@ -161,4 +161,30 @@ class PaymentUrlBuilder {
     );
   }
 
+  /**
+   * Build IPN notification URL for payment processor callbacks
+   *
+   * Generic IPN endpoint URL that payment processors (Stripe, GoCardless, etc.)
+   * should redirect to after hosted payment flows (Checkout, redirect flows).
+   *
+   * The IPN handler will then process the payment and redirect to thank-you page.
+   *
+   * @param int $paymentProcessorId Payment processor ID
+   * @param array<string,mixed> $additionalParams Processor-specific params
+   *   Examples:
+   *   - Stripe Checkout: ['session_id' => '{CHECKOUT_SESSION_ID}']
+   *   - GoCardless: ['redirect_flow_id' => '{redirect_flow_id}']
+   *
+   * @return string Absolute URL to IPN endpoint
+   */
+  public static function buildIpnUrl(int $paymentProcessorId, array $additionalParams = []): string {
+    return \CRM_Utils_System::url(
+      'civicrm/payment/ipn/' . $paymentProcessorId,
+      $additionalParams,
+      TRUE,
+      NULL,
+      FALSE
+    );
+  }
+
 }
