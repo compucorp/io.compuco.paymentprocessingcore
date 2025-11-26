@@ -43,6 +43,16 @@ class ServiceContainer {
       'paymentprocessingcore.payment_processor_customer',
       new Definition(\Civi\Paymentprocessingcore\Service\PaymentProcessorCustomerService::class)
     )->setAutowired(TRUE)->setPublic(TRUE);
+
+    // Set class aliases for autowiring
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\ContributionCompletionService',
+      'paymentprocessingcore.contribution_completion'
+    );
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\PaymentProcessorCustomerService',
+      'paymentprocessingcore.payment_processor_customer'
+    );
   }
 
 }
