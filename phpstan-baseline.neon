@@ -46,6 +46,31 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
 		-
+			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Call to method warning\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:batchUpdateStatus\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
 			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
@@ -56,7 +81,22 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
 		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:findByEventIdAndProcessor\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
 			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:getStatuses\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:getWebhooksReadyForRetry\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
@@ -111,13 +151,18 @@ parameters:
 			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
 
 		-
+			message: "#^Call to method setAlias\\(\\) on an unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
+			count: 5
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
 			message: "#^Call to method setDefinition\\(\\) on an unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
-			count: 2
+			count: 5
 			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
 
 		-
 			message: "#^Instantiated class Symfony\\\\Component\\\\DependencyInjection\\\\Definition not found\\.$#"
-			count: 2
+			count: 5
 			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
 
 		-
@@ -204,6 +249,66 @@ parameters:
 			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
 			count: 4
 			path: Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerService.php
+
+		-
+			message: "#^Access to an undefined property object\\:\\:\\$data\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 3
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 5
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Call to method warning\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueRunnerService\\:\\:runAllQueues\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueRunnerService\\:\\:runTask\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Negated boolean expression is always false\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueService\\:\\:addTask\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueService.php
+
+		-
+			message: "#^Parameter \\#2 \\$params of static method Civi\\:\\:queue\\(\\) expects array\\{type\\: string, is_autorun\\: bool, reset\\: bool, is_persistent\\: bool, runner\\: string, error\\: string, retry_limit\\: int, retry_interval\\: int\\}, array\\{type\\: 'Sql', reset\\: bool\\} given\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookQueueService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverService\\:\\:queueWebhook\\(\\) has parameter \\$eventData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookReceiverService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Webhook\\\\WebhookHandlerInterface\\:\\:handle\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Webhook/WebhookHandlerInterface.php
 
 		-
 			message: "#^Method BaseHeadlessTest\\:\\:setUpHeadless\\(\\) has no return type specified\\.$#"
@@ -824,6 +929,226 @@ parameters:
 			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\PaymentProcessor\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\TestWebhookReceiverService\\:\\:publicQueueWebhook\\(\\) has parameter \\$eventData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/TestWebhookReceiverService.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetHandlerReturnsHandlerInstanceViaServiceContainer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetHandlerThrowsExceptionForUnregisteredHandler\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetHandlerThrowsExceptionIfServiceDoesNotImplementInterface\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetRegisteredEventTypesReturnsEmptyArrayForUnknownProcessor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetRegisteredEventTypesReturnsEventTypesForProcessor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetRegisteredProcessorTypesReturnsAllProcessors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetRegisteredProcessorTypesReturnsEmptyArrayWhenNoHandlers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testHasHandlerReturnsFalseForUnregisteredHandler\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testRegisterHandlerAddsHandlerToRegistry\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testRegisterHandlerAllowsMultipleHandlersForSameProcessor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testRegisterHandlerAllowsMultipleProcessors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method class@anonymous/tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest\\.php\\:82\\:\\:handle\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testAddTaskAddsMultipleTasksToQueue\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testAddTaskAddsTaskToQueue\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testGetQueueCountReturnsCorrectCount\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testGetQueueCreatesQueueWithCorrectName\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testGetQueueReturnsDifferentInstancesForDifferentProcessors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testGetQueueReturnsQueueInstance\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testGetQueueReturnsSameInstanceForSameProcessor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testQueueResetDuringTests\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testQueuesAreIsolatedPerProcessorType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testResetInitializationAllowsQueueResetAgain\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:\\$queueService \\(Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueService\\) does not accept mixed\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
+
+		-
+			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Cannot call method getQueueCount\\(\\) on mixed\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testFindPaymentAttemptIdFindsAttemptByProcessorPaymentId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testFindPaymentAttemptIdIsProcessorSpecific\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testFindPaymentAttemptIdReturnsNullForNullInput\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testFindPaymentAttemptIdReturnsNullForUnknownPaymentId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testGetProcessorTypeReturnsCorrectProcessorType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testQueueWebhookAddsWebhookToQueue\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testSaveWebhookEventAllowsSameEventIdForDifferentProcessors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testSaveWebhookEventCreatesWebhookRecord\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookReceiverServiceTest\\:\\:testSaveWebhookEventReturnsNullForDuplicateEvent\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Offset 'event_id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Offset 'event_type' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Offset 'payment_attempt_id' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Offset 'processor_type' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Offset 'status' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$queueService of class Civi\\\\Paymentprocessingcore\\\\Service\\\\OtherWebhookReceiverService constructor expects Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueService, mixed given\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$queueService of class Civi\\\\Paymentprocessingcore\\\\Service\\\\TestWebhookReceiverService constructor expects Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueService, mixed given\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$webhookId of method Civi\\\\Paymentprocessingcore\\\\Service\\\\TestWebhookReceiverService\\:\\:publicQueueWebhook\\(\\) expects int, int\\|null given\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
 
 		-
 			message: "#^Method PaymentUrlBuilderTest\\:\\:testBuildCancelUrl\\(\\) has no return type specified\\.$#"

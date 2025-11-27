@@ -3,5 +3,7 @@
     <description>CiviCRM Coder Ruleset</description>
     <rule ref="bin/civicrm/coder/coder_sniffer/Drupal">
         <exclude-pattern>paymentprocessingcore.civix.php</exclude-pattern>
+        <!-- Allow PHPStan-style generic array syntax (array<string, bool>) in addition to compressed format (arraystringbool) -->
+        <exclude name="Drupal.Commenting.VariableComment"/>
     </rule>
 </ruleset>
