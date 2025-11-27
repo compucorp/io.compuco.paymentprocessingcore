@@ -335,4 +335,176 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhookTest extends BaseHeadlessTest 
     }
   }
 
+  /**
+   * Tests updateStatusAtomic sets processing_started_at when status becomes processing.
+   */
+  public function testUpdateStatusAtomicSetsProcessingStartedAt(): void {
+    // Create webhook in 'new' status
+    $webhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_atomic_1001',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'new',
+      'attempts' => 0,
+    ]);
+
+    // Verify webhook was created
+    $this->assertNotNull($webhook);
+    $this->assertNotNull($webhook->id, 'Webhook should be created');
+
+    // Verify initial status
+    $created = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $webhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertNotNull($created);
+    $this->assertArrayHasKey('status', $created);
+    $this->assertEquals('new', $created['status'], 'Initial status should be new');
+
+    // Atomically update to 'processing'
+    $updated = PaymentWebhook::updateStatusAtomic((int) $webhook->id, 'new', 'processing');
+
+    $this->assertTrue($updated, 'Status should be updated atomically');
+
+    // Verify processing_started_at was set
+    $webhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $webhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertNotNull($webhookData);
+    $this->assertArrayHasKey('status', $webhookData);
+    $this->assertArrayHasKey('processing_started_at', $webhookData);
+    $this->assertEquals('processing', $webhookData['status']);
+    $this->assertNotNull($webhookData['processing_started_at'], 'processing_started_at should be set');
+  }
+
+  /**
+   * Tests updateStatusAtomic does not set processing_started_at for other statuses.
+   */
+  public function testUpdateStatusAtomicDoesNotSetTimestampForOtherStatuses(): void {
+    // Create webhook in 'processing' status
+    $webhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_atomic_1002',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 0,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-10 minutes')),
+    ]);
+
+    $this->assertNotNull($webhook);
+    $this->assertNotNull($webhook->id);
+    $this->assertNotNull($webhook->processing_started_at);
+    $originalTimestamp = $webhook->processing_started_at;
+
+    // Update to 'processed' (not 'processing')
+    $updated = PaymentWebhook::updateStatusAtomic((int) $webhook->id, 'processing', 'processed');
+
+    $this->assertTrue($updated);
+
+    // Verify processing_started_at wasn't changed
+    $webhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $webhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertNotNull($webhookData);
+    $this->assertArrayHasKey('status', $webhookData);
+    $this->assertArrayHasKey('processing_started_at', $webhookData);
+    $this->assertEquals('processed', $webhookData['status']);
+    // Timestamp shouldn't change when updating to non-processing status
+    $this->assertNotNull($webhookData['processing_started_at']);
+    // Compare timestamps (allow for format differences)
+    $originalTime = strtotime($originalTimestamp);
+    $currentTime = strtotime((string) $webhookData['processing_started_at']);
+    $this->assertEquals($originalTime, $currentTime, 'Timestamp should not change');
+  }
+
+  /**
+   * Tests resetStuckWebhooks finds and resets webhooks based on processing_started_at.
+   */
+  public function testResetStuckWebhooksUsesProcessingStartedAt(): void {
+    // Create webhook stuck in processing (processing_started_at > 30 min ago)
+    $stuckWebhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_stuck_1003',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 0,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-35 minutes')),
+    ]);
+
+    // Create webhook in processing but not stuck (processing_started_at < 30 min ago)
+    $notStuckWebhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_not_stuck_1004',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 0,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-10 minutes')),
+    ]);
+
+    $this->assertNotNull($stuckWebhook);
+    $this->assertNotNull($stuckWebhook->id);
+    $this->assertNotNull($notStuckWebhook);
+    $this->assertNotNull($notStuckWebhook->id);
+
+    // Reset stuck webhooks
+    $resetCount = PaymentWebhook::resetStuckWebhooks(30);
+
+    $this->assertEquals(1, $resetCount, 'Should reset 1 stuck webhook');
+
+    // Verify stuck webhook was reset to 'new'
+    $stuckWebhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $stuckWebhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertNotNull($stuckWebhookData);
+    $this->assertArrayHasKey('status', $stuckWebhookData);
+    $this->assertEquals('new', $stuckWebhookData['status'], 'Stuck webhook should be reset to new');
+
+    // Verify not-stuck webhook remains in processing
+    $notStuckWebhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $notStuckWebhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertNotNull($notStuckWebhookData);
+    $this->assertArrayHasKey('status', $notStuckWebhookData);
+    $this->assertEquals('processing', $notStuckWebhookData['status'], 'Not-stuck webhook should remain processing');
+  }
+
+  /**
+   * Tests resetStuckWebhooks does not reset webhooks with NULL processing_started_at.
+   */
+  public function testResetStuckWebhooksIgnoresNullProcessingStartedAt(): void {
+    // Create webhook in processing but with NULL processing_started_at
+    $webhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_null_1005',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 0,
+    ]);
+
+    $this->assertNotNull($webhook);
+    $this->assertNotNull($webhook->id);
+
+    // Reset stuck webhooks
+    $resetCount = PaymentWebhook::resetStuckWebhooks(30);
+
+    // Verify webhook was NOT reset
+    $webhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $webhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertNotNull($webhookData);
+    $this->assertArrayHasKey('status', $webhookData);
+    $this->assertEquals('processing', $webhookData['status'], 'Webhook with NULL timestamp should not be reset');
+  }
+
 }

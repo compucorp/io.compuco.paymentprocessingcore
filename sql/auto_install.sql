@@ -99,6 +99,7 @@ CREATE TABLE `civicrm_payment_webhook` (
   `next_retry_at` timestamp COMMENT 'When to retry processing (for exponential backoff)',
   `result` varchar(50) COMMENT 'Processing result: applied, noop, ignored_out_of_order, error',
   `error_log` text COMMENT 'Error details if processing failed',
+  `processing_started_at` timestamp COMMENT 'When webhook entered processing state (for stuck webhook detection)',
   `processed_at` timestamp COMMENT 'When event was processed',
   `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When webhook was received',
   PRIMARY KEY (`id`),

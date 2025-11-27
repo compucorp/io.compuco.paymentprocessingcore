@@ -132,19 +132,20 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
    * @return bool TRUE if update was successful, FALSE if status didn't match
    */
   public static function updateStatusAtomic(int $id, string $expectedStatus, string $newStatus): bool {
-    $sql = "UPDATE civicrm_payment_webhook
-            SET status = %1
-            WHERE id = %2 AND status = %3";
+    $values = ['status' => $newStatus];
 
-    \CRM_Core_DAO::executeQuery($sql, [
-      1 => [$newStatus, 'String'],
-      2 => [$id, 'Integer'],
-      3 => [$expectedStatus, 'String'],
-    ]);
+    // If transitioning to 'processing', set processing_started_at timestamp
+    if ($newStatus === 'processing') {
+      $values['processing_started_at'] = date('Y-m-d H:i:s');
+    }
 
-    $affectedRows = \CRM_Core_DAO::singleValueQuery("SELECT ROW_COUNT()");
+    $result = \Civi\Api4\PaymentWebhook::update(FALSE)
+      ->addWhere('id', '=', $id)
+      ->addWhere('status', '=', $expectedStatus)
+      ->setValues($values)
+      ->execute();
 
-    return $affectedRows > 0;
+    return $result->count() > 0;
   }
 
   /**
@@ -217,7 +218,7 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
    * @return bool TRUE if max attempts exceeded
    */
   public static function hasExceededMaxAttempts(int $attempts): bool {
-    return $attempts >= self::MAX_RETRY_ATTEMPTS;
+    return $attempts > self::MAX_RETRY_ATTEMPTS;
   }
 
   /**
@@ -357,7 +358,8 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
     $stuckWebhooks = \Civi\Api4\PaymentWebhook::get(FALSE)
       ->addSelect('id')
       ->addWhere('status', '=', 'processing')
-      ->addWhere('created_date', '<', $cutoff)
+      ->addWhere('processing_started_at', 'IS NOT NULL')
+      ->addWhere('processing_started_at', '<', $cutoff)
       ->setLimit(self::MAX_STUCK_RESET_LIMIT)
       ->execute();
 

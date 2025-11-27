@@ -150,6 +150,16 @@
   </field>
 
   <field>
+    <name>processing_started_at</name>
+    <type>timestamp</type>
+    <comment>When webhook entered processing state (for stuck webhook detection)</comment>
+    <html>
+      <type>Select Date</type>
+      <label>Processing Started At</label>
+    </html>
+  </field>
+
+  <field>
     <name>processed_at</name>
     <type>timestamp</type>
     <comment>When event was processed</comment>
