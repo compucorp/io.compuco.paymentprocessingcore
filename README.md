@@ -140,6 +140,92 @@ catch (\Civi\Paymentprocessingcore\Exception\PaymentProcessorCustomerException $
 - ✅ Works with Stripe, GoCardless, ITAS, Deluxe, etc.
 - ✅ Simple callback pattern for customer creation
 
+#### Example: Webhook Processing System
+
+The extension provides a queue-based webhook processing system that automatically handles events from all registered payment processors.
+
+**How It Works:**
+
+1. Payment processor receives webhook from external service (Stripe, GoCardless, etc.)
+2. Processor extension verifies signature and saves event to `civicrm_payment_webhook`
+3. Event is added to processor-specific queue
+4. Scheduled job processes queued events with retry logic
+5. Handlers execute processor-specific business logic
+
+**For Payment Processor Developers:**
+
+```php
+// In your processor extension's webhook endpoint (CRM_YourProcessor_Page_Webhook):
+class CRM_YourProcessor_Page_Webhook extends CRM_Core_Page {
+  public function run(): void {
+    $payload = file_get_contents('php://input');
+    $signature = $_SERVER['HTTP_YOUR_PROCESSOR_SIGNATURE'] ?? '';
+
+    // Get webhook receiver service
+    $receiver = \Civi::service('yourprocessor.webhook_receiver');
+    $receiver->handleRequest($payload, $signature);
+
+    CRM_Utils_System::civiExit();
+  }
+}
+
+// In your webhook receiver service:
+class YourProcessorWebhookReceiverService {
+  private WebhookQueueService $queueService;
+
+  public function handleRequest(string $payload, string $signature): void {
+    // 1. Verify signature (processor-specific)
+    $event = $this->verifyAndParseEvent($payload, $signature);
+
+    // 2. Save to generic webhook table
+    $webhookId = $this->saveWebhookEvent($event);
+
+    // 3. Queue for processing
+    $this->queueService->addTask(
+      'yourprocessor',  // processor type
+      $webhookId,
+      ['event_data' => $event->toArray()]
+    );
+  }
+}
+
+// Implement handlers for specific event types:
+class PaymentSuccessHandler implements WebhookHandlerInterface {
+  public function handle(int $webhookId, array $params): string {
+    $eventData = $params['event_data'];
+
+    // Your business logic here
+    // Use ContributionCompletionService to complete contributions
+
+    return 'applied'; // or 'noop', 'ignored_out_of_order'
+  }
+}
+
+// Register handlers in ServiceContainer.php:
+private function registerWebhookHandlers(): void {
+  if ($this->container->hasDefinition('paymentprocessingcore.webhook_handler_registry')) {
+    $registry = $this->container->getDefinition('paymentprocessingcore.webhook_handler_registry');
+
+    $registry->addMethodCall('registerHandler', [
+      'yourprocessor',           // processor type
+      'payment.succeeded',       // event type
+      'yourprocessor.handler.payment_success',  // handler service ID
+    ]);
+  }
+}
+```
+
+**Scheduled Job:**
+
+The extension automatically creates a scheduled job "Process Payment Webhooks" that runs continuously. It automatically discovers and processes webhooks from all registered payment processors.
+
+**Features:**
+- ✅ Automatic retry with exponential backoff (5min, 15min, 45min)
+- ✅ Stuck webhook recovery (resets webhooks stuck in "processing" > 30 minutes)
+- ✅ Batch processing to prevent job timeouts (250 events per processor per run)
+- ✅ Idempotent processing (safe to call multiple times)
+- ✅ Multi-processor support (Stripe, GoCardless, Deluxe auto-discovered)
+
 ### For CiviCRM Administrators
 
 This extension provides infrastructure used by payment processors. After installation:
