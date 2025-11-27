@@ -67,6 +67,12 @@
     <fieldName>event_type</fieldName>
   </index>
 
+  <index>
+    <name>index_status_retry</name>
+    <fieldName>status</fieldName>
+    <fieldName>next_retry_at</fieldName>
+  </index>
+
   <field>
     <name>payment_attempt_id</name>
     <type>int unsigned</type>
@@ -90,13 +96,35 @@
     <length>25</length>
     <required>true</required>
     <default>'new'</default>
-    <comment>Processing status: new, processing, processed, error</comment>
+    <comment>Processing status: new, processing, processed, error, permanent_error</comment>
     <pseudoconstant>
       <callback>CRM_Paymentprocessingcore_BAO_PaymentWebhook::getStatuses</callback>
     </pseudoconstant>
     <html>
       <type>Select</type>
       <label>Status</label>
+    </html>
+  </field>
+
+  <field>
+    <name>attempts</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <default>0</default>
+    <comment>Number of processing attempts</comment>
+    <html>
+      <type>Number</type>
+      <label>Attempts</label>
+    </html>
+  </field>
+
+  <field>
+    <name>next_retry_at</name>
+    <type>timestamp</type>
+    <comment>When to retry processing (for exponential backoff)</comment>
+    <html>
+      <type>Select Date</type>
+      <label>Next Retry At</label>
     </html>
   </field>
 

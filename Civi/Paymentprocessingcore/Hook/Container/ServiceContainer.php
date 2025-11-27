@@ -44,6 +44,25 @@ class ServiceContainer {
       new Definition(\Civi\Paymentprocessingcore\Service\PaymentProcessorCustomerService::class)
     )->setAutowired(TRUE)->setPublic(TRUE);
 
+    // Register WebhookHandlerRegistry (MUST be registered first, used by other services)
+    // MUST be shared (singleton) so handler registrations persist across service lookups
+    $this->container->setDefinition(
+      'paymentprocessingcore.webhook_handler_registry',
+      new Definition(\Civi\Paymentprocessingcore\Service\WebhookHandlerRegistry::class)
+    )->setShared(TRUE)->setPublic(TRUE);
+
+    // Register WebhookQueueService
+    $this->container->setDefinition(
+      'paymentprocessingcore.webhook_queue',
+      new Definition(\Civi\Paymentprocessingcore\Service\WebhookQueueService::class)
+    )->setAutowired(TRUE)->setPublic(TRUE);
+
+    // Register WebhookQueueRunnerService
+    $this->container->setDefinition(
+      'paymentprocessingcore.webhook_queue_runner',
+      new Definition(\Civi\Paymentprocessingcore\Service\WebhookQueueRunnerService::class)
+    )->setAutowired(TRUE)->setPublic(TRUE);
+
     // Set class aliases for autowiring
     $this->container->setAlias(
       'Civi\Paymentprocessingcore\Service\ContributionCompletionService',
@@ -52,6 +71,18 @@ class ServiceContainer {
     $this->container->setAlias(
       'Civi\Paymentprocessingcore\Service\PaymentProcessorCustomerService',
       'paymentprocessingcore.payment_processor_customer'
+    );
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\WebhookHandlerRegistry',
+      'paymentprocessingcore.webhook_handler_registry'
+    );
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\WebhookQueueService',
+      'paymentprocessingcore.webhook_queue'
+    );
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\WebhookQueueRunnerService',
+      'paymentprocessingcore.webhook_queue_runner'
     );
   }
 
