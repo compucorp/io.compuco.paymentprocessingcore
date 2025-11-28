@@ -94,13 +94,17 @@ CREATE TABLE `civicrm_payment_webhook` (
   `processor_type` varchar(50) NOT NULL COMMENT 'Processor type: \'stripe\', \'gocardless\', \'itas\', etc.',
   `event_type` varchar(100) NOT NULL COMMENT 'Event type (e.g. checkout.session.completed, payment_intent.succeeded)',
   `payment_attempt_id` int unsigned NULL COMMENT 'FK to Payment Attempt',
-  `status` varchar(25) NOT NULL DEFAULT 'new' COMMENT 'Processing status: new, processing, processed, error',
+  `status` varchar(25) NOT NULL DEFAULT 'new' COMMENT 'Processing status: new, processing, processed, error, permanent_error',
+  `attempts` int unsigned NOT NULL DEFAULT 0 COMMENT 'Number of processing attempts',
+  `next_retry_at` timestamp COMMENT 'When to retry processing (for exponential backoff)',
   `result` varchar(50) COMMENT 'Processing result: applied, noop, ignored_out_of_order, error',
   `error_log` text COMMENT 'Error details if processing failed',
+  `processing_started_at` timestamp COMMENT 'When webhook entered processing state (for stuck webhook detection)',
   `processed_at` timestamp COMMENT 'When event was processed',
   `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When webhook was received',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `UI_event_processor`(event_id, processor_type),
   INDEX `index_event_type`(event_type),
+  INDEX `index_status_retry`(status, next_retry_at),
   CONSTRAINT FK_civicrm_payment_webhook_payment_attempt_id FOREIGN KEY (`payment_attempt_id`) REFERENCES `civicrm_payment_attempt`(`id`) ON DELETE SET NULL)
 ENGINE=InnoDB;

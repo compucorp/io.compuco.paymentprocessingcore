@@ -513,9 +513,229 @@ Services are the primary business logic layer, registered via dependency injecti
 
 The extension defines interfaces that payment processors must implement:
 
-- **PaymentProcessorWebhookInterface**: Contract for webhook handlers
+- **WebhookHandlerInterface**: Contract for webhook event handlers (processor-specific)
 - **PaymentAttemptInterface**: Contract for attempt handling
 - **PaymentSessionInterface**: Contract for session handling
+
+### Webhook Processing System
+
+The extension provides a queue-based webhook processing system with automatic retry and recovery:
+
+**Architecture:**
+```
+Webhook arrives → Verify signature → Save to DB → Queue → Process → Complete/Retry
+```
+
+**Key Components:**
+1. **WebhookHandlerInterface** - Contract all handlers must implement
+2. **WebhookHandlerRegistry** - Central registry mapping event types to handlers
+3. **WebhookQueueService** - Per-processor SQL queues for webhook tasks
+4. **WebhookQueueRunnerService** - Processes queued tasks with retry logic
+5. **PaymentWebhook entity** - Generic webhook storage across all processors
+
+**How Processor Extensions Integrate:**
+
+```php
+// 1. Create webhook endpoint page (processor-specific)
+class CRM_YourProcessor_Page_Webhook extends CRM_Core_Page {
+  public function run(): void {
+    $payload = file_get_contents('php://input');
+    $signature = $_SERVER['HTTP_YOUR_PROCESSOR_SIGNATURE'] ?? '';
+
+    /** @var \Civi\YourProcessor\Service\WebhookReceiverService $receiver */
+    $receiver = \Civi::service('yourprocessor.webhook_receiver');
+    $receiver->handleRequest($payload, $signature);
+
+    CRM_Utils_System::civiExit();
+  }
+}
+
+// 2. Create webhook receiver service (processor-specific)
+namespace Civi\YourProcessor\Service;
+
+use Civi\Paymentprocessingcore\Service\WebhookQueueService;
+
+class WebhookReceiverService {
+  private WebhookQueueService $queueService;
+
+  public function __construct(WebhookQueueService $queueService) {
+    $this->queueService = $queueService;
+  }
+
+  public function handleRequest(string $payload, string $signature): void {
+    // 1. Verify signature (processor-specific cryptography)
+    $event = $this->verifyAndParseEvent($payload, $signature);
+
+    // 2. Check if event type should be processed
+    if (!in_array($event->type, self::ALLOWED_EVENTS, TRUE)) {
+      http_response_code(200);
+      return;
+    }
+
+    // 3. Save to generic webhook table (atomic insert to prevent duplicates)
+    $webhookId = $this->saveWebhookEventAtomic($event);
+
+    if ($webhookId === NULL) {
+      // Duplicate - already processed
+      http_response_code(200);
+      return;
+    }
+
+    // 4. Add to queue (generic queue service)
+    $this->queueService->addTask(
+      'yourprocessor',  // processor type
+      $webhookId,
+      ['event_data' => $event->toArray()]
+    );
+
+    http_response_code(200);
+  }
+
+  private function saveWebhookEventAtomic($event): ?int {
+    // Use INSERT IGNORE for atomic duplicate prevention
+    $sql = "INSERT IGNORE INTO civicrm_payment_webhook
+            (event_id, processor_type, event_type, status, attempts, created_date)
+            VALUES (%1, %2, %3, 'new', 0, NOW())";
+
+    \CRM_Core_DAO::executeQuery($sql, [
+      1 => [$event->id, 'String'],
+      2 => ['yourprocessor', 'String'],
+      3 => [$event->type, 'String'],
+    ]);
+
+    $affectedRows = \CRM_Core_DAO::singleValueQuery("SELECT ROW_COUNT()");
+    return ($affectedRows > 0) ? (int) \CRM_Core_DAO::singleValueQuery("SELECT LAST_INSERT_ID()") : NULL;
+  }
+}
+
+// 3. Create event handlers (processor-specific business logic)
+namespace Civi\YourProcessor\Webhook;
+
+use Civi\Paymentprocessingcore\Webhook\WebhookHandlerInterface;
+use Civi\Paymentprocessingcore\Service\ContributionCompletionService;
+
+class PaymentSuccessHandler implements WebhookHandlerInterface {
+  private ContributionCompletionService $completionService;
+
+  public function __construct(ContributionCompletionService $completionService) {
+    $this->completionService = $completionService;
+  }
+
+  public function handle(int $webhookId, array $params): string {
+    $eventData = $params['event_data'];
+    $payment = $eventData['data']['object'];
+
+    // Find payment attempt
+    $attempt = \Civi\Api4\PaymentAttempt::get(FALSE)
+      ->addWhere('processor_payment_id', '=', $payment['id'])
+      ->addWhere('processor_type', '=', 'yourprocessor')
+      ->execute()
+      ->first();
+
+    if (!$attempt) {
+      return 'noop';
+    }
+
+    // Complete contribution
+    try {
+      $result = $this->completionService->complete(
+        $attempt['contribution_id'],
+        $payment['id'],
+        $payment['fee'] ?? NULL
+      );
+
+      return $result['already_completed'] ? 'noop' : 'applied';
+    }
+    catch (\Exception $e) {
+      \Civi::log()->error('Payment completion failed', [
+        'webhook_id' => $webhookId,
+        'error' => $e->getMessage(),
+      ]);
+      throw $e;
+    }
+  }
+}
+
+// 4. Register services and handlers in ServiceContainer.php
+namespace Civi\YourProcessor\Hook\Container;
+
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
+
+class ServiceContainer {
+  public function register(): void {
+    // Check if PaymentProcessingCore is available (defensive)
+    if (!$this->container->has('paymentprocessingcore.webhook_queue')) {
+      return;
+    }
+
+    // Register webhook receiver service
+    $this->container->setDefinition('yourprocessor.webhook_receiver', new Definition(
+      \Civi\YourProcessor\Service\WebhookReceiverService::class,
+      [new Reference('paymentprocessingcore.webhook_queue')]
+    ))->setPublic(TRUE);
+
+    // Register event handlers
+    $this->container->setDefinition('yourprocessor.handler.payment_success', new Definition(
+      \Civi\YourProcessor\Webhook\PaymentSuccessHandler::class
+    ))->setAutowired(TRUE)->setPublic(TRUE);
+
+    $this->container->setDefinition('yourprocessor.handler.payment_failed', new Definition(
+      \Civi\YourProcessor\Webhook\PaymentFailedHandler::class
+    ))->setAutowired(TRUE)->setPublic(TRUE);
+
+    // Register handlers with PaymentProcessingCore registry (compile-time)
+    $this->registerWebhookHandlers();
+  }
+
+  private function registerWebhookHandlers(): void {
+    if (!$this->container->hasDefinition('paymentprocessingcore.webhook_handler_registry')) {
+      return;
+    }
+
+    $registry = $this->container->getDefinition('paymentprocessingcore.webhook_handler_registry');
+
+    // Register handler for payment.success event
+    $registry->addMethodCall('registerHandler', [
+      'yourprocessor',           // processor type
+      'payment.success',         // event type
+      'yourprocessor.handler.payment_success',  // handler service ID
+    ]);
+
+    // Register handler for payment.failed event
+    $registry->addMethodCall('registerHandler', [
+      'yourprocessor',
+      'payment.failed',
+      'yourprocessor.handler.payment_failed',
+    ]);
+  }
+}
+```
+
+**How Auto-Discovery Works:**
+
+1. Container compilation phase:
+   - PaymentProcessingCore creates empty WebhookHandlerRegistry
+   - Each processor extension calls `registry->addMethodCall('registerHandler', ...)`
+   - Registry is populated before any code runs
+
+2. Scheduled job runs (processor_type='all'):
+   - Calls `WebhookQueueRunnerService->runAllQueues()`
+   - Registry returns all processor types: `['stripe', 'yourprocessor', 'gocardless']`
+   - Automatically processes webhooks from ALL registered processors
+
+3. Adding a new processor:
+   - Install extension
+   - Container rebuilds
+   - New processor auto-appears in processing queue
+   - **No configuration changes needed!**
+
+**Retry & Recovery:**
+- Exponential backoff: 5min → 15min → 45min
+- Max 3 attempts before marking as permanent_error
+- Stuck webhook recovery (resets webhooks stuck in "processing" > 30 minutes)
+- Batch processing to prevent job timeouts (250 events per processor per run)
 
 ---
 
