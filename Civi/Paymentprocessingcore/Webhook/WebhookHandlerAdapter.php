@@ -17,27 +17,35 @@ class WebhookHandlerAdapter implements WebhookHandlerInterface {
   /**
    * The wrapped duck-typed handler.
    *
-   * @var object
+   * @var mixed
    */
-  private object $handler;
+  private $handler;
 
   /**
    * Construct adapter with duck-typed handler.
    *
-   * @param object $handler
+   * @param mixed $handler
    *   Handler object with handle(int, array): string method.
    */
-  public function __construct(object $handler) {
+  public function __construct($handler) {
     $this->handler = $handler;
   }
 
   /**
-   * {@inheritdoc}
+   * Handle a webhook event by delegating to wrapped handler.
    *
-   * @param array<string, mixed> $params Additional parameters.
+   * @param int $webhookId
+   *   The webhook record ID.
+   * @param array $params
+   *   Additional parameters including event data.
+   *
+   * @phpstan-param array<string, mixed> $params
+   *
+   * @return string
+   *   Result code: 'applied', 'noop', or 'ignored_out_of_order'.
    */
   public function handle(int $webhookId, array $params): string {
-    /** @var callable(int, array<string, mixed>): string $callback */
+    /** @var callable $callback */
     $callback = [$this->handler, 'handle'];
     return $callback($webhookId, $params);
   }

@@ -85,9 +85,9 @@ class WebhookHandlerRegistryTest extends \BaseHeadlessTest {
     $mockHandler = new class implements WebhookHandlerInterface {
 
       /**
-       * {@inheritdoc}
+       * Handle webhook event.
        *
-       * @param array<string, mixed> $params Parameters.
+       * @phpstan-param array<string, mixed> $params
        */
       public function handle(int $webhookId, array $params): string {
         return 'applied';
@@ -121,10 +121,7 @@ class WebhookHandlerRegistryTest extends \BaseHeadlessTest {
       /**
        * Handle webhook event.
        *
-       * @param int $webhookId Webhook ID.
-       * @param array<string, mixed> $params Parameters.
-       *
-       * @return string Result code.
+       * @phpstan-param array<string, mixed> $params
        */
       public function handle(int $webhookId, array $params): string {
         return 'duck_typed';
