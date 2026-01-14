@@ -75,50 +75,92 @@ class WebhookHandlerRegistryTest extends \BaseHeadlessTest {
   }
 
   /**
-   * Test getHandler() returns handler instance via service container.
+   * Test getHandler() returns handler implementing interface directly.
+   *
+   * Handlers that implement WebhookHandlerInterface are returned as-is
+   * (preferred approach, Liskov Substitution Principle).
    */
-  public function testGetHandlerReturnsHandlerInstanceViaServiceContainer() {
-    // Create a mock handler
+  public function testGetHandlerReturnsInterfaceImplementorDirectly(): void {
+    // Create handler that implements the interface
     $mockHandler = new class implements WebhookHandlerInterface {
 
+      /**
+       * {@inheritdoc}
+       *
+       * @param array<string, mixed> $params Parameters.
+       */
       public function handle(int $webhookId, array $params): string {
         return 'applied';
       }
 
     };
 
-    // Register it in Civi::$statics (simulates service container)
-    \Civi::$statics['test.mock_handler'] = $mockHandler;
+    \Civi::$statics['test.interface_handler'] = $mockHandler;
+    $this->registry->registerHandler('test', 'payment.succeeded', 'test.interface_handler');
 
-    // Register handler in registry
-    $this->registry->registerHandler('test', 'payment.succeeded', 'test.mock_handler');
-
-    // Get handler
     $handler = $this->registry->getHandler('test', 'payment.succeeded');
 
+    // Should return the exact same instance (no adapter needed)
     $this->assertInstanceOf(WebhookHandlerInterface::class, $handler);
     $this->assertSame($mockHandler, $handler);
 
-    // Cleanup
-    unset(\Civi::$statics['test.mock_handler']);
+    unset(\Civi::$statics['test.interface_handler']);
   }
 
   /**
-   * Test getHandler() throws exception if service doesn't implement interface.
+   * Test getHandler() wraps duck-typed handler in adapter.
+   *
+   * Handlers with handle() method but no interface implementation are
+   * wrapped in an adapter (Adapter Pattern) to satisfy the return type.
+   * This supports handlers that cannot use `implements` due to autoload.
    */
-  public function testGetHandlerThrowsExceptionIfServiceDoesNotImplementInterface() {
-    // Register a non-handler service
-    \Civi::$statics['test.not_a_handler'] = new \stdClass();
+  public function testGetHandlerWrapsDuckTypedHandlerInAdapter(): void {
+    // Create handler with handle() method but no interface (duck typing)
+    $mockHandler = new class {
 
-    $this->registry->registerHandler('test', 'payment.succeeded', 'test.not_a_handler');
+      /**
+       * Handle webhook event.
+       *
+       * @param int $webhookId Webhook ID.
+       * @param array<string, mixed> $params Parameters.
+       *
+       * @return string Result code.
+       */
+      public function handle(int $webhookId, array $params): string {
+        return 'duck_typed';
+      }
+
+    };
+
+    \Civi::$statics['test.duck_handler'] = $mockHandler;
+    $this->registry->registerHandler('test', 'payment.succeeded', 'test.duck_handler');
+
+    $handler = $this->registry->getHandler('test', 'payment.succeeded');
+
+    // Should be wrapped in adapter implementing interface
+    $this->assertInstanceOf(WebhookHandlerInterface::class, $handler);
+    // Adapter should delegate to original handler
+    $this->assertEquals('duck_typed', $handler->handle(1, []));
+
+    unset(\Civi::$statics['test.duck_handler']);
+  }
+
+  /**
+   * Test getHandler() throws exception if service has no handle() method.
+   */
+  public function testGetHandlerThrowsExceptionIfServiceHasNoHandleMethod(): void {
+    \Civi::$statics['test.invalid'] = new \stdClass();
+    $this->registry->registerHandler('test', 'payment.succeeded', 'test.invalid');
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage("Handler service 'test.not_a_handler' does not implement WebhookHandlerInterface");
+    $this->expectExceptionMessage("must implement WebhookHandlerInterface or have a handle() method");
 
-    $this->registry->getHandler('test', 'payment.succeeded');
-
-    // Cleanup
-    unset(\Civi::$statics['test.not_a_handler']);
+    try {
+      $this->registry->getHandler('test', 'payment.succeeded');
+    }
+    finally {
+      unset(\Civi::$statics['test.invalid']);
+    }
   }
 
   /**

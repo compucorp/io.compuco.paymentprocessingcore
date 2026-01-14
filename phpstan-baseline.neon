@@ -936,17 +936,7 @@ parameters:
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/TestWebhookReceiverService.php
 
 		-
-			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetHandlerReturnsHandlerInstanceViaServiceContainer\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
-
-		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetHandlerThrowsExceptionForUnregisteredHandler\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
-
-		-
-			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testGetHandlerThrowsExceptionIfServiceDoesNotImplementInterface\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
 
@@ -987,11 +977,6 @@ parameters:
 
 		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testRegisterHandlerAllowsMultipleProcessors\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
-
-		-
-			message: "#^Method class@anonymous/tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest\\.php\\:82\\:\\:handle\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
 
