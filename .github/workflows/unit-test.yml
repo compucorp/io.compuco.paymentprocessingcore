@@ -6,7 +6,9 @@ jobs:
   run-unit-tests:
 
     runs-on: ubuntu-latest
-    container: compucorp/civicrm-buildkit:1.3.1-php8.0
+    container:
+      image: compucorp/php-fpm.civicrm:8.1
+      options: --user root
 
     env:
       CIVICRM_EXTENSIONS_DIR: site/web/sites/all/modules/civicrm/tools/extensions
@@ -18,24 +20,18 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
-        - 3306
+          - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Config mysql database as per CiviCRM requirement
         run: echo "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));" | mysql -u root --password=root --host=mysql
 
-      - name: Composer version downgrade 2.2.5
-        run: composer self-update 2.2.5
-
-      - name: Install missing extension
-        run: sudo apt update && apt install -y php-bcmath
-
       - name: Config amp
-        run : amp config:set --mysql_dsn=mysql://root:root@mysql:3306
+        run: amp config:set --mysql_dsn=mysql://root:root@mysql:3306
 
       - name: Build Drupal site
-        run: civibuild create drupal-clean --civi-ver 6.4.1 --cms-ver 7.100 --web-root $GITHUB_WORKSPACE/site
+        run: /opt/buildkit/bin/civibuild create drupal-clean --civi-ver 6.4.1 --cms-ver 7.100 --web-root $GITHUB_WORKSPACE/site
 
       - uses: actions/checkout@v2
         with:
