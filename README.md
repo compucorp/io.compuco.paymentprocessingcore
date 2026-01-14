@@ -190,6 +190,7 @@ class YourProcessorWebhookReceiverService {
 }
 
 // Implement handlers for specific event types:
+// Option 1 (Preferred): Implement the interface directly
 class PaymentSuccessHandler implements WebhookHandlerInterface {
   public function handle(int $webhookId, array $params): string {
     $eventData = $params['event_data'];
@@ -198,6 +199,15 @@ class PaymentSuccessHandler implements WebhookHandlerInterface {
     // Use ContributionCompletionService to complete contributions
 
     return 'applied'; // or 'noop', 'ignored_out_of_order'
+  }
+}
+
+// Option 2 (Fallback): Duck typing - if autoload issues occur
+// The registry will wrap this in an Adapter automatically
+class PaymentSuccessHandler {
+  public function handle(int $webhookId, array $params): string {
+    // Same signature as interface - registry validates at runtime
+    return 'applied';
   }
 }
 

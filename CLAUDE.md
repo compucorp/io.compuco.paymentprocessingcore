@@ -527,8 +527,8 @@ Webhook arrives → Verify signature → Save to DB → Queue → Process → Co
 ```
 
 **Key Components:**
-1. **WebhookHandlerInterface** - Contract all handlers must implement
-2. **WebhookHandlerRegistry** - Central registry mapping event types to handlers
+1. **WebhookHandlerInterface** - Contract for handlers (via interface or duck typing with Adapter pattern)
+2. **WebhookHandlerRegistry** - Central registry mapping event types to handlers (uses Adapter pattern for duck-typed handlers)
 3. **WebhookQueueService** - Per-processor SQL queues for webhook tasks
 4. **WebhookQueueRunnerService** - Processes queued tasks with retry logic
 5. **PaymentWebhook entity** - Generic webhook storage across all processors
@@ -609,6 +609,9 @@ class WebhookReceiverService {
 }
 
 // 3. Create event handlers (processor-specific business logic)
+//
+// OPTION 1 (Preferred): Implement the interface directly
+// Use this when your extension loads after PaymentProcessingCore
 namespace Civi\YourProcessor\Webhook;
 
 use Civi\Paymentprocessingcore\Webhook\WebhookHandlerInterface;
@@ -653,6 +656,17 @@ class PaymentSuccessHandler implements WebhookHandlerInterface {
       ]);
       throw $e;
     }
+  }
+}
+
+// OPTION 2 (Fallback): Duck typing - if autoload issues occur
+// Use this when `implements WebhookHandlerInterface` causes "Interface not found" errors
+// The WebhookHandlerRegistry will wrap this in an Adapter automatically
+class PaymentSuccessHandler {
+  public function handle(int $webhookId, array $params): string {
+    // Same signature as interface - registry validates at runtime
+    // Your business logic here
+    return 'applied';
   }
 }
 
