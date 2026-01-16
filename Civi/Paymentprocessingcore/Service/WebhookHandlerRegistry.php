@@ -2,6 +2,7 @@
 
 namespace Civi\Paymentprocessingcore\Service;
 
+use Civi\Paymentprocessingcore\Webhook\WebhookHandlerAdapter;
 use Civi\Paymentprocessingcore\Webhook\WebhookHandlerInterface;
 
 /**
@@ -43,14 +44,22 @@ class WebhookHandlerRegistry {
    * Get the handler for a processor and event type.
    *
    * Retrieves the handler service from the container using the registered
-   * service ID. The handler must implement WebhookHandlerInterface.
+   * service ID. Validation follows the Liskov Substitution Principle:
+   *
+   * 1. Prefers instanceof WebhookHandlerInterface (proper OOP contract)
+   * 2. Falls back to duck typing (method_exists) for handlers that cannot
+   *    implement the interface due to extension loading order constraints
+   *
+   * Note: Interface check happens at RUNTIME (here), not at class definition.
+   * This allows proper SOLID compliance while avoiding PHP autoload issues
+   * that occur when using `implements` in class declarations.
    *
    * @param string $processorType The processor type
    * @param string $eventType The event type
    *
-   * @return \Civi\Paymentprocessingcore\Webhook\WebhookHandlerInterface
+   * @return \Civi\Paymentprocessingcore\Webhook\WebhookHandlerInterface Handler instance
    *
-   * @throws \RuntimeException If no handler is registered for the combination
+   * @throws \RuntimeException If no handler is registered or handler is invalid
    */
   public function getHandler(string $processorType, string $eventType): WebhookHandlerInterface {
     if (!isset($this->handlers[$processorType][$eventType])) {
@@ -73,16 +82,26 @@ class WebhookHandlerRegistry {
       $handler = \Civi::service($serviceId);
     }
 
-    if (!$handler instanceof WebhookHandlerInterface) {
-      throw new \RuntimeException(
-        sprintf(
-          "Handler service '%s' does not implement WebhookHandlerInterface",
-          $serviceId
-        )
-      );
+    // Runtime validation: check interface implementation (Liskov Substitution)
+    // This check happens at runtime when all extensions are loaded,
+    // avoiding autoload issues that occur at class definition time.
+    if ($handler instanceof WebhookHandlerInterface) {
+      return $handler;
     }
 
-    return $handler;
+    // Fallback: Duck typing for handlers that cannot implement interface
+    // due to extension loading order constraints. Still validates contract.
+    if (is_object($handler) && method_exists($handler, 'handle')) {
+      // Wrap in adapter to satisfy return type (Adapter Pattern)
+      return new WebhookHandlerAdapter($handler);
+    }
+
+    throw new \RuntimeException(
+      sprintf(
+        "Handler service '%s' must implement WebhookHandlerInterface or have a handle() method",
+        $serviceId
+      )
+    );
   }
 
   /**
