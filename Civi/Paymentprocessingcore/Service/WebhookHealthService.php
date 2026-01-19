@@ -89,11 +89,14 @@ class WebhookHealthService {
             FROM civicrm_payment_webhook
             GROUP BY processor_type";
 
+    /** @var \CRM_Core_DAO $dao */
     $dao = \CRM_Core_DAO::executeQuery($sql);
     $result = [];
 
     while ($dao->fetch()) {
-      $result[$dao->processor_type] = [
+      /** @var string $processorType */
+      $processorType = $dao->processor_type;
+      $result[$processorType] = [
         'pending' => (int) $dao->pending,
         'stuck' => (int) $dao->stuck,
         'errors' => (int) $dao->errors,
@@ -120,6 +123,7 @@ class WebhookHealthService {
                   AND processed_at > DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END) as processed_last_hour
             FROM civicrm_payment_webhook";
 
+    /** @var \CRM_Core_DAO $dao */
     $dao = \CRM_Core_DAO::executeQuery($sql);
     $dao->fetch();
 

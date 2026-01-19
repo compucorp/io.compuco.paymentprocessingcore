@@ -10,11 +10,6 @@ class CRM_Paymentprocessingcore_Page_WebhookHealthTest extends BaseHeadlessTest 
   /**
    * @var string|null
    */
-  private ?string $originalSiteKey = NULL;
-
-  /**
-   * @var string|null
-   */
   private ?string $originalAuthHeader = NULL;
 
   /**
@@ -29,7 +24,6 @@ class CRM_Paymentprocessingcore_Page_WebhookHealthTest extends BaseHeadlessTest 
     parent::setUp();
 
     // Store original values.
-    $this->originalSiteKey = defined('CIVICRM_SITE_KEY') ? CIVICRM_SITE_KEY : NULL;
     $this->originalAuthHeader = $_SERVER['HTTP_X_CIVI_KEY'] ?? NULL;
     $this->originalKeyParam = $_GET['key'] ?? NULL;
 
@@ -165,7 +159,9 @@ class CRM_Paymentprocessingcore_Page_WebhookHealthTest extends BaseHeadlessTest 
 
     // Verify method signature exists and is private.
     $this->assertTrue($method->isPrivate());
-    $this->assertEquals('bool', $method->getReturnType()?->getName());
+    $returnType = $method->getReturnType();
+    $this->assertInstanceOf(\ReflectionNamedType::class, $returnType);
+    $this->assertEquals('bool', $returnType->getName());
   }
 
 }

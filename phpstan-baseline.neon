@@ -46,21 +46,6 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
 		-
-			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
-			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
-
-		-
-			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
-			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
-
-		-
-			message: "#^Call to method warning\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
-			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
-
-		-
 			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
@@ -111,11 +96,6 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
 		-
-			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Exception/ContributionCompletionException.php
-
-		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Exception\\\\ContributionCompletionException\\:\\:__construct\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Civi/Paymentprocessingcore/Exception/ContributionCompletionException.php
@@ -129,11 +109,6 @@ parameters:
 			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Exception\\\\ContributionCompletionException\\:\\:\\$context type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Civi/Paymentprocessingcore/Exception/ContributionCompletionException.php
-
-		-
-			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
 
 		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Exception\\\\PaymentProcessorCustomerException\\:\\:__construct\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
@@ -151,31 +126,6 @@ parameters:
 			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
 
 		-
-			message: "#^Call to method setAlias\\(\\) on an unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
-			count: 5
-			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
-
-		-
-			message: "#^Call to method setDefinition\\(\\) on an unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
-			count: 5
-			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
-
-		-
-			message: "#^Instantiated class Symfony\\\\Component\\\\DependencyInjection\\\\Definition not found\\.$#"
-			count: 5
-			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
-
-		-
-			message: "#^Parameter \\$container of method Civi\\\\Paymentprocessingcore\\\\Hook\\\\Container\\\\ServiceContainer\\:\\:__construct\\(\\) has invalid type Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
-			count: 2
-			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
-
-		-
-			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Hook\\\\Container\\\\ServiceContainer\\:\\:\\$container has unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder as its type\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
-
-		-
 			message: "#^Call to method getExtraParams\\(\\) on an unknown class CiviCRM_API3_Exception\\.$#"
 			count: 1
 			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
@@ -183,16 +133,6 @@ parameters:
 		-
 			message: "#^Call to method getMessage\\(\\) on an unknown class CiviCRM_API3_Exception\\.$#"
 			count: 2
-			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
-
-		-
-			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 2
-			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
-
-		-
-			message: "#^Call to method warning\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
 			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
 
 		-
@@ -236,38 +176,8 @@ parameters:
 			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
 
 		-
-			message: "#^Call to method debug\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerService.php
-
-		-
-			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 2
-			path: Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerService.php
-
-		-
-			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 4
-			path: Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerService.php
-
-		-
 			message: "#^Access to an undefined property object\\:\\:\\$data\\.$#"
 			count: 2
-			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
-
-		-
-			message: "#^Call to method error\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 3
-			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
-
-		-
-			message: "#^Call to method info\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 5
-			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
-
-		-
-			message: "#^Call to method warning\\(\\) on an unknown class Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
 			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
 
 		-
@@ -289,6 +199,36 @@ parameters:
 			message: "#^Negated boolean expression is always false\\.$#"
 			count: 1
 			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$processor_type\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$pending\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$stuck\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$errors\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$permanent_errors\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$processed_last_hour\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
 
 		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueService\\:\\:addTask\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
