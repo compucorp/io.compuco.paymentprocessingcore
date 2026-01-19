@@ -310,6 +310,10 @@ class WebhookQueueRunnerService {
     // Increment attempt counter
     $attempts = \CRM_Paymentprocessingcore_BAO_PaymentWebhook::incrementAttempts($webhookId);
 
+    // Wrap processing in a transaction for atomicity
+    // If handler or status update fails, changes are rolled back
+    $tx = new \CRM_Core_Transaction();
+
     try {
       /** @var \Civi\Paymentprocessingcore\Service\WebhookHandlerRegistry $registry */
       $registry = \Civi::service('paymentprocessingcore.webhook_handler_registry');
@@ -326,6 +330,7 @@ class WebhookQueueRunnerService {
           'processed',
           'no_handler'
         );
+        $tx->commit();
         return TRUE;
       }
 
@@ -335,6 +340,9 @@ class WebhookQueueRunnerService {
 
       // Update status to processed
       \CRM_Paymentprocessingcore_BAO_PaymentWebhook::updateStatus($webhookId, 'processed', $result);
+
+      // Commit transaction on success
+      $tx->commit();
 
       \Civi::log()->info('Webhook processed successfully', [
         'webhook_id' => $webhookId,
@@ -347,6 +355,8 @@ class WebhookQueueRunnerService {
       return TRUE;
     }
     catch (\Exception $e) {
+      // Rollback transaction on failure
+      $tx->rollback();
       $errorMessage = $e->getMessage();
 
       // Check if we've exceeded max retries
