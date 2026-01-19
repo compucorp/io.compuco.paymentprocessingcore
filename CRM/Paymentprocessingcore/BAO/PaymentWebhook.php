@@ -53,18 +53,20 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
   /**
    * Check if an event has already been processed (for idempotency)
    *
-   * Only returns TRUE for webhooks with status='processed'.
-   * Webhooks stuck in 'processing' state (worker crashed) are NOT considered
-   * processed, allowing them to be retried via resetStuckWebhooks().
+   * Returns TRUE for webhooks with status 'processed' or 'processing'.
+   * This prevents duplicate processing attempts - if a webhook is currently
+   * being processed by another worker, callers should skip it.
+   *
+   * Stuck webhooks (in 'processing' too long) are handled separately by
+   * resetStuckWebhooks() which resets their status to 'new', after which
+   * this method will return FALSE.
    *
    * @param string $eventId Processor event ID
-   * @return bool TRUE if event has been processed, FALSE otherwise
+   * @return bool TRUE if event is processed or being processed, FALSE otherwise
    */
   public static function isProcessed($eventId) {
     $webhook = self::findByEventId($eventId);
-    // Only 'processed' status counts as truly processed.
-    // 'processing' status may indicate a stuck webhook that needs retry.
-    return !empty($webhook) && $webhook['status'] === 'processed';
+    return !empty($webhook) && in_array($webhook['status'], ['processed', 'processing']);
   }
 
   /**
