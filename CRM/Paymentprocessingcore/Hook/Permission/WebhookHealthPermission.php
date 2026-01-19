@@ -22,6 +22,7 @@ class CRM_Paymentprocessingcore_Hook_Permission_WebhookHealthPermission {
    * Reference to permissions array.
    *
    * @var array
+   * @phpstan-var array<string, array{label: string, description: string}>
    */
   private array $permissions;
 
@@ -30,6 +31,8 @@ class CRM_Paymentprocessingcore_Hook_Permission_WebhookHealthPermission {
    *
    * @param array $permissions
    *   Reference to the permissions array.
+   *
+   * @phpstan-param array<string, array{label: string, description: string}> $permissions
    */
   public function __construct(array &$permissions) {
     $this->permissions = &$permissions;

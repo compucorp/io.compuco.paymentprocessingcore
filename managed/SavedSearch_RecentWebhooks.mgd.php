@@ -111,6 +111,7 @@ return [
           ],
         ],
         'acl_bypass' => FALSE,
+        'permission' => ['administer payment webhook health'],
       ],
       'match' => ['saved_search_id', 'name'],
     ],

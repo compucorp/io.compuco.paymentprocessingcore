@@ -26,6 +26,11 @@ class WebhookHealthService {
   public const UNHEALTHY_PENDING_AGE_MINUTES = 30;
 
   /**
+   * Threshold for "stuck" status: processing webhooks older than this (minutes).
+   */
+  public const STUCK_THRESHOLD_MINUTES = 30;
+
+  /**
    * Health status: System is operating normally.
    */
   public const STATUS_HEALTHY = 'healthy';
@@ -73,12 +78,13 @@ class WebhookHealthService {
    * @return array<string, array{pending: int, stuck: int, errors: int}>
    */
   public function getProcessorStats(): array {
+    $stuckThreshold = self::STUCK_THRESHOLD_MINUTES;
     $sql = "SELECT
               processor_type,
               SUM(CASE WHEN status IN ('new', 'processing') THEN 1 ELSE 0 END) as pending,
               SUM(CASE WHEN status = 'processing'
                   AND processing_started_at IS NOT NULL
-                  AND processing_started_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE) THEN 1 ELSE 0 END) as stuck,
+                  AND processing_started_at < DATE_SUB(NOW(), INTERVAL {$stuckThreshold} MINUTE) THEN 1 ELSE 0 END) as stuck,
               SUM(CASE WHEN status IN ('error', 'permanent_error') THEN 1 ELSE 0 END) as errors
             FROM civicrm_payment_webhook
             GROUP BY processor_type";
@@ -103,11 +109,12 @@ class WebhookHealthService {
    * @return array{pending: int, stuck: int, permanent_errors: int, processed_last_hour: int}
    */
   public function getTotals(): array {
+    $stuckThreshold = self::STUCK_THRESHOLD_MINUTES;
     $sql = "SELECT
               SUM(CASE WHEN status IN ('new', 'processing') THEN 1 ELSE 0 END) as pending,
               SUM(CASE WHEN status = 'processing'
                   AND processing_started_at IS NOT NULL
-                  AND processing_started_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE) THEN 1 ELSE 0 END) as stuck,
+                  AND processing_started_at < DATE_SUB(NOW(), INTERVAL {$stuckThreshold} MINUTE) THEN 1 ELSE 0 END) as stuck,
               SUM(CASE WHEN status = 'permanent_error' THEN 1 ELSE 0 END) as permanent_errors,
               SUM(CASE WHEN status = 'processed'
                   AND processed_at > DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END) as processed_last_hour
