@@ -131,6 +131,7 @@ class WebhookQueueRunnerService {
         break;
       }
 
+      $shouldDelete = FALSE;
       try {
         // Execute the task callback
         $taskResult = call_user_func_array($item->data->callback, array_merge(
@@ -138,11 +139,8 @@ class WebhookQueueRunnerService {
           $item->data->arguments
         ));
 
-        if ($taskResult) {
-          $queue->deleteItem($item);
-        }
-        else {
-          $queue->releaseItem($item);
+        $shouldDelete = (bool) $taskResult;
+        if (!$taskResult) {
           $errors++;
         }
       }
@@ -157,8 +155,26 @@ class WebhookQueueRunnerService {
           'exception_class' => get_class($e),
           'trace' => $e->getTraceAsString(),
         ]);
-        $queue->releaseItem($item);
+        $shouldDelete = FALSE;
         $errors++;
+      }
+      finally {
+        // Ensure item is always released or deleted, preventing item loss
+        // if an exception occurs during deleteItem() or releaseItem()
+        try {
+          if ($shouldDelete) {
+            $queue->deleteItem($item);
+          }
+          else {
+            $queue->releaseItem($item);
+          }
+        }
+        catch (\Exception $e) {
+          \Civi::log()->error('Failed to release/delete queue item', [
+            'processor_type' => $processorType,
+            'error' => $e->getMessage(),
+          ]);
+        }
       }
 
       $processed++;
