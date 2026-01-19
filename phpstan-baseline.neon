@@ -1,16 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to an undefined method CRM_Paymentprocessingcore_DAO_PaymentAttempt\\:\\:find\\(\\)\\.$#"
-			count: 3
-			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
-
-		-
-			message: "#^Call to an undefined method CRM_Paymentprocessingcore_DAO_PaymentAttempt\\:\\:toArray\\(\\)\\.$#"
-			count: 3
-			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
-
-		-
 			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttempt\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
@@ -21,29 +11,19 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
 
 		-
-			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:find\\(\\)\\.$#"
-			count: 2
-			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
-
-		-
-			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:toArray\\(\\)\\.$#"
-			count: 2
-			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
-
-		-
 			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
 
 		-
-			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:find\\(\\)\\.$#"
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:findByContactAndProcessor\\(\\) should return array\\{id\\: int, contact_id\\: int, payment_processor_id\\: int, processor_customer_id\\: string, created_date\\: string\\}\\|null but returns array\\.$#"
 			count: 1
-			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
 
 		-
-			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:toArray\\(\\)\\.$#"
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:findByProcessorCustomerId\\(\\) should return array\\{id\\: int, contact_id\\: int, payment_processor_id\\: int, processor_customer_id\\: string, created_date\\: string\\}\\|null but returns array\\.$#"
 			count: 1
-			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
 
 		-
 			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
@@ -207,26 +187,16 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$pending\\.$#"
-			count: 2
+			count: 1
 			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
 
 		-
 			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$stuck\\.$#"
-			count: 2
+			count: 1
 			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
 
 		-
 			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$errors\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
-
-		-
-			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$permanent_errors\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
-
-		-
-			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$processed_last_hour\\.$#"
 			count: 1
 			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
 
@@ -606,11 +576,6 @@ parameters:
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$exception of method PHPUnit\\\\Framework\\\\TestCase\\:\\:expectException\\(\\) expects class\\-string\\<Throwable\\>, string given\\.$#"
-			count: 3
-			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
-
-		-
 			message: "#^Property Civi_Api4_PaymentAttemptTest\\:\\:\\$contactId has no type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
@@ -811,11 +776,6 @@ parameters:
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$exception of method PHPUnit\\\\Framework\\\\TestCase\\:\\:expectException\\(\\) expects class\\-string\\<Throwable\\>, string given\\.$#"
-			count: 4
-			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
-
-		-
 			message: "#^Property Civi_Api4_PaymentWebhookTest\\:\\:\\$attemptId has no type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
@@ -919,6 +879,36 @@ parameters:
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookHandlerRegistryTest\\:\\:testRegisterHandlerAllowsMultipleProcessors\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHandlerRegistryTest.php
+
+		-
+			message: "#^Cannot access offset 'pending' on mixed\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHealthServiceTest.php
+
+		-
+			message: "#^Cannot access offset 'permanent_errors' on mixed\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHealthServiceTest.php
+
+		-
+			message: "#^Cannot access offset 'processed_last_hour' on mixed\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHealthServiceTest.php
+
+		-
+			message: "#^Cannot access offset 'stuck' on mixed\\.$#"
+			count: 3
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHealthServiceTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$array of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, mixed given\\.$#"
+			count: 2
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHealthServiceTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$string of method PHPUnit\\\\Framework\\\\Assert\\:\\:assertMatchesRegularExpression\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookHealthServiceTest.php
 
 		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueServiceTest\\:\\:testAddTaskAddsMultipleTasksToQueue\\(\\) has no return type specified\\.$#"
@@ -1153,9 +1143,4 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#"
 			count: 2
-			path: tests/phpunit/bootstrap.php
-
-		-
-			message: "#^Parameter \\#2 \\$value of function ini_set expects string, int given\\.$#"
-			count: 1
 			path: tests/phpunit/bootstrap.php
