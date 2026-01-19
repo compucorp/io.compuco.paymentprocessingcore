@@ -63,6 +63,12 @@ class ServiceContainer {
       new Definition(\Civi\Paymentprocessingcore\Service\WebhookQueueRunnerService::class)
     )->setAutowired(TRUE)->setPublic(TRUE);
 
+    // Register WebhookHealthService
+    $this->container->setDefinition(
+      'paymentprocessingcore.webhook_health',
+      new Definition(\Civi\Paymentprocessingcore\Service\WebhookHealthService::class)
+    )->setAutowired(TRUE)->setPublic(TRUE);
+
     // Set class aliases for autowiring
     $this->container->setAlias(
       'Civi\Paymentprocessingcore\Service\ContributionCompletionService',
@@ -83,6 +89,10 @@ class ServiceContainer {
     $this->container->setAlias(
       'Civi\Paymentprocessingcore\Service\WebhookQueueRunnerService',
       'paymentprocessingcore.webhook_queue_runner'
+    );
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\WebhookHealthService',
+      'paymentprocessingcore.webhook_health'
     );
   }
 

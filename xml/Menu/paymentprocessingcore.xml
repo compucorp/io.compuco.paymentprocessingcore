@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/webhook/health</path>
+    <page_callback>CRM_Paymentprocessingcore_Page_WebhookHealth</page_callback>
+    <title>Webhook Health</title>
+    <access_arguments>*always allow*</access_arguments>
+  </item>
+</menu>
