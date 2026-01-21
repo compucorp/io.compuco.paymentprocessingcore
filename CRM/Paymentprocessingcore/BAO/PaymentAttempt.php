@@ -117,4 +117,45 @@ class CRM_Paymentprocessingcore_BAO_PaymentAttempt extends CRM_Paymentprocessing
     ];
   }
 
+  /**
+   * Validate that a status value is valid.
+   *
+   * @param string $status Status to validate
+   *
+   * @return void
+   *
+   * @throws \InvalidArgumentException If status is not valid
+   */
+  public static function validateStatus(string $status): void {
+    $validStatuses = array_keys(self::getStatuses());
+    if (!in_array($status, $validStatuses, TRUE)) {
+      throw new \InvalidArgumentException(
+        sprintf(
+          'Invalid PaymentAttempt status "%s". Valid statuses are: %s',
+          $status,
+          implode(', ', $validStatuses)
+        )
+      );
+    }
+  }
+
+  /**
+   * Update payment attempt status with validation.
+   *
+   * @param int $id Payment attempt ID
+   * @param string $status New status: 'pending', 'completed', 'failed', 'cancelled'
+   *
+   * @return void
+   *
+   * @throws \InvalidArgumentException If status is not valid
+   */
+  public static function updateStatus(int $id, string $status): void {
+    self::validateStatus($status);
+
+    self::writeRecord([
+      'id' => $id,
+      'status' => $status,
+    ]);
+  }
+
 }

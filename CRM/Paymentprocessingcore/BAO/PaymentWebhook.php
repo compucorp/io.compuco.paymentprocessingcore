@@ -53,8 +53,16 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
   /**
    * Check if an event has already been processed (for idempotency)
    *
+   * Returns TRUE for webhooks with status 'processed' or 'processing'.
+   * This prevents duplicate processing attempts - if a webhook is currently
+   * being processed by another worker, callers should skip it.
+   *
+   * Stuck webhooks (in 'processing' too long) are handled separately by
+   * resetStuckWebhooks() which resets their status to 'new', after which
+   * this method will return FALSE.
+   *
    * @param string $eventId Processor event ID
-   * @return bool TRUE if event has been processed, FALSE otherwise
+   * @return bool TRUE if event is processed or being processed, FALSE otherwise
    */
   public static function isProcessed($eventId) {
     $webhook = self::findByEventId($eventId);
@@ -87,6 +95,28 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
   }
 
   /**
+   * Validate that a status value is valid.
+   *
+   * @param string $status Status to validate
+   *
+   * @return void
+   *
+   * @throws \InvalidArgumentException If status is not valid
+   */
+  private static function validateStatus(string $status): void {
+    $validStatuses = array_keys(self::getStatuses());
+    if (!in_array($status, $validStatuses, TRUE)) {
+      throw new \InvalidArgumentException(
+        sprintf(
+          'Invalid PaymentWebhook status "%s". Valid statuses are: %s',
+          $status,
+          implode(', ', $validStatuses)
+        )
+      );
+    }
+  }
+
+  /**
    * Update webhook status and optional result/error fields.
    *
    * Automatically sets processed_at timestamp when status is 'processed' or 'error'.
@@ -97,6 +127,8 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
    * @param string|null $errorLog Error details if processing failed
    */
   public static function updateStatus(int $id, string $status, ?string $result = NULL, ?string $errorLog = NULL): void {
+    self::validateStatus($status);
+
     $params = [
       'id' => $id,
       'status' => $status,
@@ -215,10 +247,10 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
    *
    * @param int $attempts Current attempt count
    *
-   * @return bool TRUE if max attempts exceeded
+   * @return bool TRUE if max attempts reached or exceeded
    */
   public static function hasExceededMaxAttempts(int $attempts): bool {
-    return $attempts > self::MAX_RETRY_ATTEMPTS;
+    return $attempts >= self::MAX_RETRY_ATTEMPTS;
   }
 
   /**
@@ -319,6 +351,8 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
     if (empty($ids)) {
       return;
     }
+
+    self::validateStatus($status);
 
     // Sanitize IDs to prevent SQL injection
     $sanitizedIds = array_map('intval', $ids);

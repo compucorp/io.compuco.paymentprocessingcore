@@ -62,11 +62,12 @@ abstract class WebhookReceiverService {
   abstract public function handleRequest(string $payload, string $signature): void;
 
   /**
-   * Save webhook event to database.
+   * Save webhook event to database using INSERT IGNORE.
    *
-   * Default implementation uses API4 with check-then-create pattern.
-   * Override this method for atomic operations (e.g., INSERT IGNORE)
-   * when race conditions are a concern.
+   * Uses INSERT IGNORE for atomic duplicate prevention.
+   * This prevents race conditions when payment processors send duplicate webhooks.
+   * The database unique index (event_id, processor_type) ensures only one
+   * record is created even if multiple concurrent requests arrive.
    *
    * @param string $eventId
    *   Unique event identifier from the payment processor.
@@ -83,30 +84,57 @@ abstract class WebhookReceiverService {
     string $eventType,
     ?int $paymentAttemptId = NULL
   ): ?int {
-    // Check if already exists (race condition possible here)
-    $existing = \Civi\Api4\PaymentWebhook::get(FALSE)
-      ->addSelect('id')
-      ->addWhere('event_id', '=', $eventId)
-      ->addWhere('processor_type', '=', $this->getProcessorType())
-      ->execute()
-      ->first();
+    // Use INSERT IGNORE to handle duplicates atomically
+    // The unique index UI_event_processor will prevent duplicates
+    // Handle NULL payment_attempt_id - CiviCRM's executeQuery doesn't support NULL with Integer type
+    if ($paymentAttemptId === NULL) {
+      $sql = "INSERT IGNORE INTO civicrm_payment_webhook
+              (event_id, processor_type, event_type, payment_attempt_id, status, attempts, created_date)
+              VALUES (%1, %2, %3, NULL, %4, %5, NOW())";
+      $params = [
+        1 => [$eventId, 'String'],
+        2 => [$this->getProcessorType(), 'String'],
+        3 => [$eventType, 'String'],
+        4 => ['new', 'String'],
+        5 => [0, 'Integer'],
+      ];
+    }
+    else {
+      $sql = "INSERT IGNORE INTO civicrm_payment_webhook
+              (event_id, processor_type, event_type, payment_attempt_id, status, attempts, created_date)
+              VALUES (%1, %2, %3, %4, %5, %6, NOW())";
+      $params = [
+        1 => [$eventId, 'String'],
+        2 => [$this->getProcessorType(), 'String'],
+        3 => [$eventType, 'String'],
+        4 => [$paymentAttemptId, 'Integer'],
+        5 => ['new', 'String'],
+        6 => [0, 'Integer'],
+      ];
+    }
 
-    if ($existing) {
+    $dao = \CRM_Core_DAO::executeQuery($sql, $params);
+
+    // Check if insert was successful using affectedRows()
+    // INSERT IGNORE returns 0 affected rows if duplicate was ignored
+    $affectedRows = method_exists($dao, 'affectedRows') ? $dao->affectedRows() : 0;
+
+    if ($affectedRows === 0) {
+      // Duplicate - INSERT IGNORE skipped the insert
       return NULL;
     }
 
-    // Create new record
-    $result = \Civi\Api4\PaymentWebhook::create(FALSE)
-      ->addValue('event_id', $eventId)
-      ->addValue('processor_type', $this->getProcessorType())
-      ->addValue('event_type', $eventType)
-      ->addValue('payment_attempt_id', $paymentAttemptId)
-      ->addValue('status', 'new')
-      ->addValue('attempts', 0)
-      ->execute()
-      ->first();
+    // Query back using the unique key to get the inserted ID
+    // This is safer than LAST_INSERT_ID() in connection pooling scenarios
+    $id = \CRM_Core_DAO::singleValueQuery(
+      "SELECT id FROM civicrm_payment_webhook WHERE event_id = %1 AND processor_type = %2",
+      [
+        1 => [$eventId, 'String'],
+        2 => [$this->getProcessorType(), 'String'],
+      ]
+    );
 
-    return $result['id'] ?? NULL;
+    return $id !== NULL ? (int) $id : NULL;
   }
 
   /**

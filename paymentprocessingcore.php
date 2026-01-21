@@ -47,6 +47,21 @@ function paymentprocessingcore_civicrm_container($container): void {
   }
 }
 
+/**
+ * Implements hook_civicrm_permission().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_permission/
+ */
+function paymentprocessingcore_civicrm_permission(&$permissions): void {
+  $hooks = [
+    new CRM_Paymentprocessingcore_Hook_Permission_WebhookHealthPermission($permissions),
+  ];
+
+  foreach ($hooks as $hook) {
+    $hook->run();
+  }
+}
+
 // --- Functions below this ship commented out. Uncomment as required. ---
 
 /**

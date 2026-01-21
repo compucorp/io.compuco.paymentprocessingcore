@@ -30,6 +30,11 @@ jobs:
       - name: Config amp
         run: amp config:set --mysql_dsn=mysql://root:root@mysql:3306
 
+      - name: Downgrade buildkit Composer for CiviCRM compatibility
+        run: |
+          curl -sS https://getcomposer.org/download/2.2.24/composer.phar -o /opt/buildkit/bin/composer
+          chmod +x /opt/buildkit/bin/composer
+
       - name: Build Drupal site
         run: /opt/buildkit/bin/civibuild create drupal-clean --civi-ver 6.4.1 --cms-ver 7.100 --web-root $GITHUB_WORKSPACE/site
 
