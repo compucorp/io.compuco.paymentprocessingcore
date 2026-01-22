@@ -3,7 +3,7 @@
 use Civi\Paymentprocessingcore\Service\WebhookQueueRunnerService;
 
 /**
- * WebhookQueueRunner.Run API.
+ * PaymentWebhookRunner.Run API.
  *
  * Process queued webhook events from payment processors.
  *
@@ -29,7 +29,7 @@ use Civi\Paymentprocessingcore\Service\WebhookQueueRunnerService;
  *
  * @throws \CRM_Core_Exception
  */
-function civicrm_api3_webhook_queue_runner_Run(array $params): array {
+function civicrm_api3_payment_webhook_runner_Run(array $params): array {
   $processorType = $params['processor_type'] ?? 'all';
   $batchSize = (int) ($params['batch_size'] ?? WebhookQueueRunnerService::DEFAULT_BATCH_SIZE);
 
@@ -44,16 +44,16 @@ function civicrm_api3_webhook_queue_runner_Run(array $params): array {
     $result = [$processorType => $runnerService->runQueue($processorType, $batchSize)];
   }
 
-  return civicrm_api3_create_success($result, $params, 'WebhookQueueRunner', 'Run');
+  return civicrm_api3_create_success($result, $params, 'PaymentWebhookRunner', 'Run');
 }
 
 /**
- * WebhookQueueRunner.Run API specification.
+ * PaymentWebhookRunner.Run API specification.
  *
  * @param array $spec
  *   API specification array.
  */
-function _civicrm_api3_webhook_queue_runner_Run_spec(array &$spec): void {
+function _civicrm_api3_payment_webhook_runner_Run_spec(array &$spec): void {
   $spec['processor_type'] = [
     'title' => 'Processor Type',
     'description' => 'Payment processor type. Use "all" (default) to process webhooks from all registered processors, or specify one: stripe, gocardless, deluxe, etc.',
