@@ -94,6 +94,17 @@ class ServiceContainer {
       'Civi\Paymentprocessingcore\Service\WebhookHealthService',
       'paymentprocessingcore.webhook_health'
     );
+
+    // Register InstalmentGenerationService
+    $this->container->setDefinition(
+      'paymentprocessingcore.instalment_generation',
+      new Definition(\Civi\Paymentprocessingcore\Service\InstalmentGenerationService::class)
+    )->setAutowired(TRUE)->setPublic(TRUE);
+
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\InstalmentGenerationService',
+      'paymentprocessingcore.instalment_generation'
+    );
   }
 
 }

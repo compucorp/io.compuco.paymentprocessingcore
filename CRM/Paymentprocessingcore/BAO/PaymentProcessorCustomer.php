@@ -52,7 +52,9 @@ class CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer extends CRM_Payment
     $customer->payment_processor_id = $paymentProcessorId;
 
     if ($customer->find(TRUE)) {
-      return $customer->toArray();
+      /** @var array{id: int, contact_id: int, payment_processor_id: int, processor_customer_id: string, created_date: string} $data */
+      $data = $customer->toArray();
+      return $data;
     }
 
     return NULL;
@@ -78,7 +80,9 @@ class CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer extends CRM_Payment
     $customer->payment_processor_id = $paymentProcessorId;
 
     if ($customer->find(TRUE)) {
-      return $customer->toArray();
+      /** @var array{id: int, contact_id: int, payment_processor_id: int, processor_customer_id: string, created_date: string} $data */
+      $data = $customer->toArray();
+      return $data;
     }
 
     return NULL;

@@ -4,6 +4,7 @@ includes:
 
 parameters:
 	level: 9
+	reportUnmatchedIgnoredErrors: false
 	paths:
 		- Civi
 		- CRM
@@ -15,6 +16,9 @@ parameters:
 			- paymentprocessingcore.civix.php
 			- '*.mgd.php'
 			- tests/bootstrap.php
+	stubFiles:
+	  # Stubs for CiviCRM Api4 entity classes (dynamically generated at runtime)
+	  - stubs/CiviApi4.stub.php
 	scanFiles:
 	  - paymentprocessingcore.civix.php
 	  - /build/site/web/sites/all/modules/civicrm/Civi.php
