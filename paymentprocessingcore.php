@@ -62,6 +62,24 @@ function paymentprocessingcore_civicrm_permission(&$permissions): void {
   }
 }
 
+/**
+ * Implements hook_civicrm_tabset().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_tabset/
+ *
+ * @phpstan-param array<string, mixed> $tabs
+ * @phpstan-param array<string, mixed> $context
+ */
+function paymentprocessingcore_civicrm_tabset(string $tabsetName, array &$tabs, array $context): void {
+  $hooks = [
+    new \Civi\Paymentprocessingcore\Hook\TabSet\ContributionPageTabs($tabsetName, $tabs),
+  ];
+
+  foreach ($hooks as $hook) {
+    $hook->run();
+  }
+}
+
 // --- Functions below this ship commented out. Uncomment as required. ---
 
 /**
