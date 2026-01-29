@@ -51,6 +51,13 @@ class ServiceContainer {
       new Definition(\Civi\Paymentprocessingcore\Service\WebhookHandlerRegistry::class)
     )->setShared(TRUE)->setPublic(TRUE);
 
+    // Register PayabilityProviderRegistry
+    // MUST be shared (singleton) so provider registrations persist across service lookups
+    $this->container->setDefinition(
+      'paymentprocessingcore.payability_registry',
+      new Definition(\Civi\Paymentprocessingcore\Service\PayabilityProviderRegistry::class)
+    )->setShared(TRUE)->setPublic(TRUE);
+
     // Register WebhookQueueService
     $this->container->setDefinition(
       'paymentprocessingcore.webhook_queue',
@@ -81,6 +88,10 @@ class ServiceContainer {
     $this->container->setAlias(
       'Civi\Paymentprocessingcore\Service\WebhookHandlerRegistry',
       'paymentprocessingcore.webhook_handler_registry'
+    );
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\PayabilityProviderRegistry',
+      'paymentprocessingcore.payability_registry'
     );
     $this->container->setAlias(
       'Civi\Paymentprocessingcore\Service\WebhookQueueService',
