@@ -4,6 +4,7 @@ includes:
 
 parameters:
 	level: 9
+	reportUnmatchedIgnoredErrors: false
 	paths:
 		- Civi
 		- CRM
@@ -17,6 +18,10 @@ parameters:
 			- tests/bootstrap.php
 	scanFiles:
 	  - paymentprocessingcore.civix.php
+	  # CiviCRM Api4 entity classes that are dynamically generated at runtime.
+	  # Must be scanFiles (not stubFiles) because stubFiles are overridden
+	  # when scanDirectories loads the Civi\Api4 namespace from core.
+	  - stubs/CiviApi4.stub.php
 	  - /build/site/web/sites/all/modules/civicrm/Civi.php
 	  # Test base classes needed for type information
 	  - tests/phpunit/BaseHeadlessTest.php

@@ -1,5 +1,6 @@
 <?php
 
+use Civi\Paymentprocessingcore\DTO\RecurringContributionDTO;
 use Civi\Paymentprocessingcore\Service\InstalmentGenerationService;
 
 /**
@@ -55,6 +56,7 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
 
     $this->assertCount(1, $contributions);
     $newContribution = $contributions->first();
+    $this->assertIsArray($newContribution);
     $this->assertEquals($contactId, $newContribution['contact_id']);
     $this->assertEquals(50.00, (float) $newContribution['total_amount']);
     $this->assertEquals('GBP', $newContribution['currency']);
@@ -318,16 +320,15 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
 
     $this->assertCount(1, $results);
     $record = $results[0];
-    $this->assertArrayHasKey('id', $record);
-    $this->assertArrayHasKey('next_sched_contribution_date', $record);
-    $this->assertArrayHasKey('frequency_unit:name', $record);
-    $this->assertArrayHasKey('frequency_interval', $record);
-    $this->assertArrayHasKey('contact_id', $record);
-    $this->assertArrayHasKey('amount', $record);
-    $this->assertArrayHasKey('currency', $record);
-    $this->assertArrayHasKey('financial_type_id', $record);
-    $this->assertEquals('week', $record['frequency_unit:name']);
-    $this->assertEquals(2, $record['frequency_interval']);
+    $this->assertInstanceOf(RecurringContributionDTO::class, $record);
+    $this->assertGreaterThan(0, $record->getId());
+    $this->assertNotEmpty($record->getNextSchedContributionDate());
+    $this->assertGreaterThan(0, $record->getContactId());
+    $this->assertGreaterThan(0, $record->getAmount());
+    $this->assertNotEmpty($record->getCurrency());
+    $this->assertGreaterThan(0, $record->getFinancialTypeId());
+    $this->assertEquals('week', $record->getFrequencyUnit());
+    $this->assertEquals(2, $record->getFrequencyInterval());
   }
 
   /**
@@ -563,8 +564,15 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
     $campaignId = (int) $campaignResult['values'][$campaignResult['id']]['id'];
 
     $recurId = $this->createRecurringContribution($contactId, $processorId);
-    $recur = $this->getRecurRecord($recurId);
-    $recur['campaign_id'] = $campaignId;
+    $recur = RecurringContributionDTO::fromApiResult([
+      'id' => $recurId,
+      'contact_id' => $contactId,
+      'amount' => 50.00,
+      'currency' => 'GBP',
+      'financial_type_id' => 1,
+      'campaign_id' => $campaignId,
+      'next_sched_contribution_date' => date('Y-m-d'),
+    ]);
 
     $contributionId = $this->service->createInstalment($recur, date('Y-m-d'));
 
@@ -708,12 +716,12 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
    * @param int $recurId
    *   The recurring contribution ID.
    *
-   * @return array<string, mixed>
-   *   The recurring contribution record.
+   * @return \Civi\Paymentprocessingcore\DTO\RecurringContributionDTO
+   *   The recurring contribution DTO.
    */
-  private function getRecurRecord(int $recurId): array {
+  private function getRecurRecord(int $recurId): RecurringContributionDTO {
     $recur = \Civi\Api4\ContributionRecur::get(FALSE)
-      ->addSelect('id', 'contact_id', 'amount', 'currency', 'financial_type_id', 'campaign_id')
+      ->addSelect('id', 'contact_id', 'amount', 'currency', 'financial_type_id', 'campaign_id', 'next_sched_contribution_date')
       ->addWhere('id', '=', $recurId)
       ->execute()
       ->first();
@@ -722,7 +730,7 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
       throw new \RuntimeException('Failed to get ContributionRecur ' . $recurId);
     }
 
-    return $recur;
+    return RecurringContributionDTO::fromApiResult($recur);
   }
 
   /**

@@ -1,6 +1,16 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_DAO_PaymentAttempt\\:\\:find\\(\\)\\.$#"
+			count: 3
+			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
+
+		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_DAO_PaymentAttempt\\:\\:toArray\\(\\)\\.$#"
+			count: 3
+			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
+
+		-
 			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentAttempt\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
@@ -11,19 +21,29 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentAttempt.php
 
 		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:find\\(\\)\\.$#"
+			count: 2
+			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
+
+		-
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:toArray\\(\\)\\.$#"
+			count: 2
+			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
+
+		-
 			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:create\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
 
 		-
-			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:findByContactAndProcessor\\(\\) should return array\\{id\\: int, contact_id\\: int, payment_processor_id\\: int, processor_customer_id\\: string, created_date\\: string\\}\\|null but returns array\\.$#"
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:find\\(\\)\\.$#"
 			count: 1
-			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
 		-
-			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer\\:\\:findByProcessorCustomerId\\(\\) should return array\\{id\\: int, contact_id\\: int, payment_processor_id\\: int, processor_customer_id\\: string, created_date\\: string\\}\\|null but returns array\\.$#"
+			message: "#^Call to an undefined method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:toArray\\(\\)\\.$#"
 			count: 1
-			path: CRM/Paymentprocessingcore/BAO/PaymentProcessorCustomer.php
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
 		-
 			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
@@ -106,6 +126,31 @@ parameters:
 			path: Civi/Paymentprocessingcore/Exception/PaymentProcessorCustomerException.php
 
 		-
+			message: "#^Call to method setAlias\\(\\) on an unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
+			count: 7
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Call to method setDefinition\\(\\) on an unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
+			count: 7
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Component\\\\DependencyInjection\\\\Definition not found\\.$#"
+			count: 7
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Parameter \\$container of method Civi\\\\Paymentprocessingcore\\\\Hook\\\\Container\\\\ServiceContainer\\:\\:__construct\\(\\) has invalid type Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
+			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Hook\\\\Container\\\\ServiceContainer\\:\\:\\$container has unknown class Symfony\\\\Component\\\\DependencyInjection\\\\ContainerBuilder as its type\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Hook/Container/ServiceContainer.php
+
+		-
 			message: "#^Call to method getExtraParams\\(\\) on an unknown class CiviCRM_API3_Exception\\.$#"
 			count: 1
 			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
@@ -113,16 +158,6 @@ parameters:
 		-
 			message: "#^Call to method getMessage\\(\\) on an unknown class CiviCRM_API3_Exception\\.$#"
 			count: 2
-			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
-
-		-
-			message: "#^Call to static method get\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
-
-		-
-			message: "#^Call to static method get\\(\\) on an unknown class Civi\\\\Api4\\\\ContributionPage\\.$#"
-			count: 1
 			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
 
 		-
@@ -156,6 +191,31 @@ parameters:
 			path: Civi/Paymentprocessingcore/Service/ContributionCompletionService.php
 
 		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$errors\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$pending\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$processor_type\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$stuck\\.$#"
+			count: 1
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
+			message: "#^Call to an undefined method CRM_Core_DAO\\:\\:fetch\\(\\)\\.$#"
+			count: 2
+			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
+
+		-
 			message: "#^Access to an undefined property object\\:\\:\\$data\\.$#"
 			count: 2
 			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
@@ -181,26 +241,6 @@ parameters:
 			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
 
 		-
-			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$processor_type\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
-
-		-
-			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$pending\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
-
-		-
-			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$stuck\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
-
-		-
-			message: "#^Access to an undefined property CRM_Core_DAO\\:\\:\\$errors\\.$#"
-			count: 1
-			path: Civi/Paymentprocessingcore/Service/WebhookHealthService.php
-
-		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueService\\:\\:addTask\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Civi/Paymentprocessingcore/Service/WebhookQueueService.php
@@ -224,11 +264,6 @@ parameters:
 			message: "#^Method BaseHeadlessTest\\:\\:setUpHeadless\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: tests/phpunit/BaseHeadlessTest.php
-
-		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
-			count: 1
-			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
 
 		-
 			message: "#^Cannot access property \\$contact_id on CRM_Paymentprocessingcore_DAO_PaymentAttempt\\|null\\.$#"
@@ -327,13 +362,8 @@ parameters:
 
 		-
 			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
-			count: 1
+			count: 2
 			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentAttemptTest.php
-
-		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
-			count: 1
-			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
 
 		-
 			message: "#^Cannot access property \\$event_id on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
@@ -452,7 +482,7 @@ parameters:
 
 		-
 			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
-			count: 1
+			count: 2
 			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
 
 		-
@@ -461,17 +491,7 @@ parameters:
 			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
 
 		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
-			count: 5
-			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
-
-		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\PaymentProcessor\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
-
-		-
-			message: "#^Call to static method delete\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			message: "#^Call to an undefined method Civi\\\\Api4\\\\Generic\\\\DAODeleteAction\\:\\:setUseTrash\\(\\)\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
 
@@ -552,7 +572,7 @@ parameters:
 
 		-
 			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
-			count: 13
+			count: 19
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
 
 		-
@@ -576,6 +596,11 @@ parameters:
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
 
 		-
+			message: "#^Parameter \\#1 \\$exception of method PHPUnit\\\\Framework\\\\TestCase\\:\\:expectException\\(\\) expects class\\-string\\<Throwable\\>, string given\\.$#"
+			count: 3
+			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
+
+		-
 			message: "#^Property Civi_Api4_PaymentAttemptTest\\:\\:\\$contactId has no type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
@@ -589,11 +614,6 @@ parameters:
 			message: "#^Property Civi_Api4_PaymentAttemptTest\\:\\:\\$paymentProcessorId has no type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentAttemptTest.php
-
-		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\PaymentProcessor\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
 
 		-
 			message: "#^Method Civi_Api4_PaymentProcessorCustomerTest\\:\\:skipTestCascadeDeleteWhenContactDeleted\\(\\) has no return type specified\\.$#"
@@ -639,11 +659,6 @@ parameters:
 			message: "#^Offset 'processor_customer…' does not exist on array\\|null\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentProcessorCustomerTest.php
-
-		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
 
 		-
 			message: "#^Method Civi_Api4_PaymentWebhookTest\\:\\:testAllResults\\(\\) has no return type specified\\.$#"
@@ -747,7 +762,7 @@ parameters:
 
 		-
 			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
-			count: 13
+			count: 14
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
 
 		-
@@ -776,6 +791,11 @@ parameters:
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
 
 		-
+			message: "#^Parameter \\#1 \\$exception of method PHPUnit\\\\Framework\\\\TestCase\\:\\:expectException\\(\\) expects class\\-string\\<Throwable\\>, string given\\.$#"
+			count: 4
+			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
+
+		-
 			message: "#^Property Civi_Api4_PaymentWebhookTest\\:\\:\\$attemptId has no type specified\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
@@ -791,27 +811,27 @@ parameters:
 			path: tests/phpunit/Civi/Api4/PaymentWebhookTest.php
 
 		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			message: "#^Offset 'contribution_status…' does not exist on array\\|null\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
 
 		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\ContributionPage\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
-
-		-
-			message: "#^Call to static method get\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
-			count: 2
-			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
-
-		-
-			message: "#^Call to static method update\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
+			message: "#^Offset 'fee_amount' does not exist on array\\|null\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
 
 		-
 			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
+			count: 3
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Offset 'net_amount' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
+
+		-
+			message: "#^Offset 'trxn_id' does not exist on array\\|null\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
 
@@ -824,11 +844,6 @@ parameters:
 			message: "#^Property Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionServiceTest\\:\\:\\$service \\(Civi\\\\Paymentprocessingcore\\\\Service\\\\ContributionCompletionService\\) does not accept mixed\\.$#"
 			count: 1
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/ContributionCompletionServiceTest.php
-
-		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\PaymentProcessor\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Paymentprocessingcore/Service/PaymentProcessorCustomerServiceTest.php
 
 		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\TestWebhookReceiverService\\:\\:publicQueueWebhook\\(\\) has parameter \\$eventData with no value type specified in iterable type array\\.$#"
@@ -966,11 +981,6 @@ parameters:
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookQueueServiceTest.php
 
 		-
-			message: "#^Call to static method create\\(\\) on an unknown class Civi\\\\Api4\\\\Contribution\\.$#"
-			count: 1
-			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
-
-		-
 			message: "#^Cannot call method getQueueCount\\(\\) on mixed\\.$#"
 			count: 2
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
@@ -1032,7 +1042,7 @@ parameters:
 
 		-
 			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
-			count: 2
+			count: 3
 			path: tests/phpunit/Civi/Paymentprocessingcore/Service/WebhookReceiverServiceTest.php
 
 		-
@@ -1143,4 +1153,9 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#"
 			count: 2
+			path: tests/phpunit/bootstrap.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of function ini_set expects string, int given\\.$#"
+			count: 1
 			path: tests/phpunit/bootstrap.php

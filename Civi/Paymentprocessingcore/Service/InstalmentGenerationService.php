@@ -2,6 +2,7 @@
 
 namespace Civi\Paymentprocessingcore\Service;
 
+use Civi\Paymentprocessingcore\DTO\RecurringContributionDTO;
 use Civi\Paymentprocessingcore\Helper\DebugLoggerTrait;
 
 /**
@@ -63,13 +64,8 @@ class InstalmentGenerationService {
 
     foreach ($dueRecurrings as $recur) {
       try {
-        if (!is_array($recur) || empty($recur['id']) || empty($recur['next_sched_contribution_date'])) {
-          throw new \InvalidArgumentException('Malformed recurring contribution record from query.');
-        }
-        $recurId = (int) $recur['id'];
-        $receiveDate = (string) $recur['next_sched_contribution_date'];
-        $frequencyUnit = (string) ($recur['frequency_unit:name'] ?? 'month');
-        $frequencyInterval = (int) ($recur['frequency_interval'] ?? 1);
+        $recurId = $recur->getId();
+        $receiveDate = $recur->getNextSchedContributionDate();
 
         if ($this->instalmentExists($recurId, $receiveDate)) {
           $this->logDebug('InstalmentGenerationService::generateInstalments: Skipping duplicate instalment', [
@@ -83,7 +79,7 @@ class InstalmentGenerationService {
         $tx = new \CRM_Core_Transaction();
         try {
           $this->createInstalment($recur, $receiveDate);
-          $this->advanceScheduleDate($recurId, $receiveDate, $frequencyUnit, $frequencyInterval);
+          $this->advanceScheduleDate($recurId, $receiveDate, $recur->getFrequencyUnit(), $recur->getFrequencyInterval());
           $tx->commit();
           $summary['created']++;
         }
@@ -98,7 +94,7 @@ class InstalmentGenerationService {
         ]);
       }
       catch (\Throwable $e) {
-        $recurId = isset($recur['id']) && is_numeric($recur['id']) ? (int) $recur['id'] : 0;
+        $recurId = isset($recurId) ? $recurId : 0;
         $summary['errored']++;
         $summary['errors'][$recurId] = $e->getMessage();
 
@@ -132,8 +128,8 @@ class InstalmentGenerationService {
    * @param string|null $referenceDate
    *   Optional reference date (Y-m-d). Defaults to today.
    *
-   * @return array<int, array<string, mixed>>
-   *   Array of recurring contribution records.
+   * @return array<int, RecurringContributionDTO>
+   *   Array of recurring contribution DTOs.
    */
   public function getDueRecurringContributions(string $processorType, int $batchSize, ?string $referenceDate = NULL): array {
     $dateOnly = $referenceDate ?? date('Y-m-d');
@@ -158,16 +154,19 @@ class InstalmentGenerationService {
       ->addJoin(
         'PaymentProcessor AS pp',
         'INNER',
+        NULL,
         ['payment_processor_id', '=', 'pp.id']
       )
       ->addJoin(
         'PaymentProcessorType AS ppt',
         'INNER',
+        NULL,
         ['pp.payment_processor_type_id', '=', 'ppt.id']
       )
       ->addJoin(
         'Membership AS m',
         'LEFT',
+        NULL,
         ['id', '=', 'm.contribution_recur_id']
       )
       ->addWhere('contribution_status_id:name', '=', 'In Progress')
@@ -178,7 +177,13 @@ class InstalmentGenerationService {
       ->execute()
       ->getArrayCopy();
 
-    return $result;
+    $dtos = [];
+    foreach ($result as $record) {
+      /** @var array<string, mixed> $record */
+      $dtos[] = RecurringContributionDTO::fromApiResult($record);
+    }
+
+    return $dtos;
   }
 
   /**
@@ -227,9 +232,8 @@ class InstalmentGenerationService {
    * campaign_id from the recurring contribution record. Sets is_pay_later
    * to 0 and invoice_id to NULL.
    *
-   * @param array<string, mixed> $recur
-   *   The recurring contribution record (must include id, contact_id,
-   *   amount, currency, financial_type_id, campaign_id).
+   * @param \Civi\Paymentprocessingcore\DTO\RecurringContributionDTO $recur
+   *   The recurring contribution DTO.
    * @param string $receiveDate
    *   The receive date for the new contribution.
    *
@@ -237,32 +241,28 @@ class InstalmentGenerationService {
    *   The new contribution ID.
    *
    * @throws \RuntimeException
-   * @throws \InvalidArgumentException
    */
-  public function createInstalment(array $recur, string $receiveDate): int {
-    /** @var int $recurId */
-    $recurId = $recur['id'];
-
+  public function createInstalment(RecurringContributionDTO $recur, string $receiveDate): int {
     $createAction = \Civi\Api4\Contribution::create(FALSE)
-      ->addValue('contact_id', $recur['contact_id'])
-      ->addValue('financial_type_id', $recur['financial_type_id'])
-      ->addValue('total_amount', $recur['amount'])
-      ->addValue('currency', $recur['currency'])
-      ->addValue('contribution_recur_id', $recurId)
+      ->addValue('contact_id', $recur->getContactId())
+      ->addValue('financial_type_id', $recur->getFinancialTypeId())
+      ->addValue('total_amount', $recur->getAmount())
+      ->addValue('currency', $recur->getCurrency())
+      ->addValue('contribution_recur_id', $recur->getId())
       ->addValue('receive_date', $receiveDate)
       ->addValue('contribution_status_id:name', 'Pending')
       ->addValue('is_pay_later', 0)
       ->addValue('invoice_id', NULL);
 
-    if (!empty($recur['campaign_id'])) {
-      $createAction->addValue('campaign_id', $recur['campaign_id']);
+    if ($recur->getCampaignId() !== NULL) {
+      $createAction->addValue('campaign_id', $recur->getCampaignId());
     }
 
     $result = $createAction->execute()->first();
 
     if (!is_array($result)) {
       throw new \RuntimeException(
-        'Failed to create instalment for recurring contribution ' . $recurId
+        'Failed to create instalment for recurring contribution ' . $recur->getId()
       );
     }
 
