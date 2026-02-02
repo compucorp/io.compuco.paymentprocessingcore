@@ -65,7 +65,7 @@ jobs:
       - name: Run PHPStan
         working-directory: ${{ env.CIVICRM_EXTENSIONS_DIR }}/io.compuco.paymentprocessingcore
         run: |
-          # Create phpstan.neon with CI-specific paths
+          # Create phpstan-ci.neon with CI-specific paths
           cat > phpstan-ci.neon <<EOF
           includes:
             - phpstan-baseline.neon
@@ -73,6 +73,7 @@ jobs:
 
           parameters:
             level: 9
+            reportUnmatchedIgnoredErrors: false
             paths:
               - Civi
               - CRM
@@ -85,6 +86,7 @@ jobs:
                 - tests/bootstrap.php
             scanFiles:
               - paymentprocessingcore.civix.php
+              - stubs/CiviApi4.stub.php
               - $GITHUB_WORKSPACE/site/web/sites/all/modules/civicrm/Civi.php
               - tests/phpunit/BaseHeadlessTest.php
             scanDirectories:

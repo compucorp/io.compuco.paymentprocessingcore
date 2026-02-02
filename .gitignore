@@ -2,7 +2,7 @@
 .env
 civicrm-core/
 .idea
-.claude/
+.claude/settings.local.json
 .phpunit.result.cache
 bin/civicrm/
 bin/phpcbf.phar
