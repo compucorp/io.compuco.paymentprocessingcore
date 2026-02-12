@@ -149,7 +149,8 @@ class InstalmentGenerationService {
         'amount',
         'currency',
         'financial_type_id',
-        'campaign_id'
+        'campaign_id',
+        'payment_instrument_id'
       )
       ->addJoin(
         'PaymentProcessor AS pp',
@@ -256,6 +257,10 @@ class InstalmentGenerationService {
 
     if ($recur->getCampaignId() !== NULL) {
       $createAction->addValue('campaign_id', $recur->getCampaignId());
+    }
+
+    if ($recur->getPaymentInstrumentId() !== NULL) {
+      $createAction->addValue('payment_instrument_id', $recur->getPaymentInstrumentId());
     }
 
     $result = $createAction->execute()->first();
