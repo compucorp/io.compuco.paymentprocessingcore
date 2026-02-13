@@ -92,7 +92,7 @@ class CRM_Paymentprocessingcore_BAO_PaymentAttempt extends CRM_Paymentprocessing
     }
 
     $attempt = new self();
-    $attempt->contribution_id = $contributionId;
+    $attempt->contribution_id = (string) $contributionId;
 
     /** @var CRM_Paymentprocessingcore_DAO_PaymentAttempt $attempt */
     if ($attempt->find(TRUE)) {
@@ -111,6 +111,7 @@ class CRM_Paymentprocessingcore_BAO_PaymentAttempt extends CRM_Paymentprocessing
   public static function getStatuses() {
     return [
       'pending' => E::ts('Pending'),
+      'processing' => E::ts('Processing'),
       'completed' => E::ts('Completed'),
       'failed' => E::ts('Failed'),
       'cancelled' => E::ts('Cancelled'),
@@ -143,7 +144,7 @@ class CRM_Paymentprocessingcore_BAO_PaymentAttempt extends CRM_Paymentprocessing
    * Update payment attempt status with validation.
    *
    * @param int $id Payment attempt ID
-   * @param string $status New status: 'pending', 'completed', 'failed', 'cancelled'
+   * @param string $status New status: 'pending', 'processing', 'completed', 'failed', 'cancelled'
    *
    * @return void
    *
@@ -156,6 +157,29 @@ class CRM_Paymentprocessingcore_BAO_PaymentAttempt extends CRM_Paymentprocessing
       'id' => $id,
       'status' => $status,
     ]);
+  }
+
+  /**
+   * Atomically update payment attempt status with optimistic locking.
+   *
+   * Only updates if the current status matches the expected status.
+   * This prevents race conditions when multiple workers try to process
+   * the same payment attempt simultaneously.
+   *
+   * @param int $id Payment attempt ID
+   * @param string $expectedStatus Current expected status
+   * @param string $newStatus New status to set
+   *
+   * @return bool TRUE if update was successful, FALSE if status didn't match
+   */
+  public static function updateStatusAtomic(int $id, string $expectedStatus, string $newStatus): bool {
+    $result = \Civi\Api4\PaymentAttempt::update(FALSE)
+      ->addWhere('id', '=', $id)
+      ->addWhere('status', '=', $expectedStatus)
+      ->setValues(['status' => $newStatus])
+      ->execute();
+
+    return $result->count() > 0;
   }
 
 }

@@ -48,8 +48,8 @@ class CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer extends CRM_Payment
     }
 
     $customer = new self();
-    $customer->contact_id = $contactId;
-    $customer->payment_processor_id = $paymentProcessorId;
+    $customer->contact_id = (string) $contactId;
+    $customer->payment_processor_id = (string) $paymentProcessorId;
 
     if ($customer->find(TRUE)) {
       /** @var array{id: int, contact_id: int, payment_processor_id: int, processor_customer_id: string, created_date: string} $data */
@@ -77,7 +77,7 @@ class CRM_Paymentprocessingcore_BAO_PaymentProcessorCustomer extends CRM_Payment
 
     $customer = new self();
     $customer->processor_customer_id = $processorCustomerId;
-    $customer->payment_processor_id = $paymentProcessorId;
+    $customer->payment_processor_id = (string) $paymentProcessorId;
 
     if ($customer->find(TRUE)) {
       /** @var array{id: int, contact_id: int, payment_processor_id: int, processor_customer_id: string, created_date: string} $data */

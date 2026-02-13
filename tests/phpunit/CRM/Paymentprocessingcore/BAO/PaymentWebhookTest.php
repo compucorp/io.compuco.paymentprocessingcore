@@ -58,7 +58,8 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhookTest extends BaseHeadlessTest 
       'processor_type' => 'stripe',
       'status' => 'pending',
     ]);
-    $this->attemptId = $attempt->id;
+    $this->assertNotNull($attempt);
+    $this->attemptId = intval($attempt->id);
   }
 
   /**
