@@ -44,7 +44,8 @@ done
 echo "🚀 Setting up CiviCRM environment (CiviCRM ${CIVICRM_VERSION}, Drupal ${CMS_VERSION})..."
 
 echo "📦 Installing required PHP extensions..."
-apt update && apt install -y php-bcmath
+PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
+apt update && apt install -y php${PHP_VERSION}-bcmath || echo "bcmath extension may already be installed"
 
 echo "⬇️ Downgrading Composer to 2.2.5..."
 composer self-update 2.2.5

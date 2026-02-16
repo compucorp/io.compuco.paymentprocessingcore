@@ -24,7 +24,7 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
     $instance = new $className();
     $instance->copyValues($params);
     $instance->save();
-    CRM_Utils_Hook::post($hook, $entityName, $instance->id, $instance);
+    CRM_Utils_Hook::post($hook, $entityName, (int) $instance->id, $instance);
 
     return $instance;
   }

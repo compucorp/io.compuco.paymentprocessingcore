@@ -183,21 +183,91 @@ class CRM_Paymentprocessingcore_BAO_PaymentAttemptTest extends BaseHeadlessTest 
   }
 
   /**
-   * Tests getStatuses returns correct status options.
+   * Tests getStatuses returns correct status options including processing.
    */
   public function testGetStatuses() {
     $statuses = PaymentAttempt::getStatuses();
 
     $this->assertIsArray($statuses);
     $this->assertArrayHasKey('pending', $statuses);
+    $this->assertArrayHasKey('processing', $statuses);
     $this->assertArrayHasKey('completed', $statuses);
     $this->assertArrayHasKey('failed', $statuses);
     $this->assertArrayHasKey('cancelled', $statuses);
 
     $this->assertEquals('Pending', $statuses['pending']);
+    $this->assertEquals('Processing', $statuses['processing']);
     $this->assertEquals('Completed', $statuses['completed']);
     $this->assertEquals('Failed', $statuses['failed']);
     $this->assertEquals('Cancelled', $statuses['cancelled']);
+  }
+
+  /**
+   * Tests validateStatus accepts processing status.
+   */
+  public function testValidateStatusAcceptsProcessing(): void {
+    // Should not throw exception.
+    PaymentAttempt::validateStatus('processing');
+    $this->assertTrue(TRUE);
+  }
+
+  /**
+   * Tests validateStatus rejects invalid status.
+   */
+  public function testValidateStatusRejectsInvalid(): void {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Invalid PaymentAttempt status "invalid"');
+    PaymentAttempt::validateStatus('invalid');
+  }
+
+  /**
+   * Tests updateStatusAtomic succeeds when status matches.
+   */
+  public function testUpdateStatusAtomicSucceedsOnMatch(): void {
+    // Create attempt with pending status.
+    $attempt = PaymentAttempt::create([
+      'contribution_id' => $this->contributionId,
+      'contact_id' => $this->contactId,
+      'processor_type' => 'stripe',
+      'status' => 'pending',
+    ]);
+
+    // Atomic update from pending to processing should succeed.
+    $this->assertNotNull($attempt);
+    $result = PaymentAttempt::updateStatusAtomic((int) $attempt->id, 'pending', 'processing');
+
+    $this->assertTrue($result);
+
+    // Verify status was updated.
+    $found = PaymentAttempt::findByContributionId($this->contributionId);
+    $this->assertNotNull($found);
+    $this->assertIsArray($found);
+    $this->assertEquals('processing', $found['status']);
+  }
+
+  /**
+   * Tests updateStatusAtomic fails when status does not match.
+   */
+  public function testUpdateStatusAtomicFailsOnMismatch(): void {
+    // Create attempt with completed status.
+    $attempt = PaymentAttempt::create([
+      'contribution_id' => $this->contributionId,
+      'contact_id' => $this->contactId,
+      'processor_type' => 'stripe',
+      'status' => 'completed',
+    ]);
+
+    // Atomic update expecting pending should fail.
+    $this->assertNotNull($attempt);
+    $result = PaymentAttempt::updateStatusAtomic((int) $attempt->id, 'pending', 'processing');
+
+    $this->assertFalse($result);
+
+    // Verify status was NOT updated.
+    $found = PaymentAttempt::findByContributionId($this->contributionId);
+    $this->assertNotNull($found);
+    $this->assertIsArray($found);
+    $this->assertEquals('completed', $found['status']);
   }
 
   /**

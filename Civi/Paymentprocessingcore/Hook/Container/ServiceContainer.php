@@ -105,6 +105,17 @@ class ServiceContainer {
       'Civi\Paymentprocessingcore\Service\InstalmentGenerationService',
       'paymentprocessingcore.instalment_generation'
     );
+
+    // Register InstalmentChargeService
+    $this->container->setDefinition(
+      'paymentprocessingcore.instalment_charge',
+      new Definition(\Civi\Paymentprocessingcore\Service\InstalmentChargeService::class)
+    )->setAutowired(TRUE)->setPublic(TRUE);
+
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\InstalmentChargeService',
+      'paymentprocessingcore.instalment_charge'
+    );
   }
 
 }
