@@ -116,6 +116,17 @@ class ServiceContainer {
       'Civi\Paymentprocessingcore\Service\InstalmentChargeService',
       'paymentprocessingcore.instalment_charge'
     );
+
+    // Register PaymentAttemptReconcileService
+    $this->container->setDefinition(
+      'paymentprocessingcore.payment_attempt_reconcile',
+      new Definition(\Civi\Paymentprocessingcore\Service\PaymentAttemptReconcileService::class)
+    )->setAutowired(TRUE)->setPublic(TRUE);
+
+    $this->container->setAlias(
+      'Civi\Paymentprocessingcore\Service\PaymentAttemptReconcileService',
+      'paymentprocessingcore.payment_attempt_reconcile'
+    );
   }
 
 }
