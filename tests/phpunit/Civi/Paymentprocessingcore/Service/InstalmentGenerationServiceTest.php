@@ -585,6 +585,45 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
   }
 
   /**
+   * Tests createInstalment copies payment_instrument_id when present.
+   */
+  public function testCreateInstalmentCopiesPaymentInstrumentId(): void {
+    $processorId = $this->createPaymentProcessor();
+    $contactId = $this->createContact();
+
+    // Look up EFT payment instrument (non-default, avoids false positives).
+    $eftInstrument = \Civi\Api4\OptionValue::get(FALSE)
+      ->addSelect('value')
+      ->addWhere('option_group_id:name', '=', 'payment_instrument')
+      ->addWhere('name', '=', 'EFT')
+      ->execute()
+      ->first();
+
+    $this->assertNotNull($eftInstrument);
+    $paymentInstrumentId = (int) $eftInstrument['value'];
+
+    $recurId = $this->createRecurringContribution($contactId, $processorId);
+    $recur = RecurringContributionDTO::fromApiResult([
+      'id' => $recurId,
+      'contact_id' => $contactId,
+      'amount' => 50.00,
+      'currency' => 'GBP',
+      'financial_type_id' => 1,
+      'payment_instrument_id' => $paymentInstrumentId,
+      'next_sched_contribution_date' => date('Y-m-d'),
+    ]);
+
+    $contributionId = $this->service->createInstalment($recur, date('Y-m-d'));
+
+    $result = \CRM_Core_DAO::singleValueQuery(
+      'SELECT payment_instrument_id FROM civicrm_contribution WHERE id = %1',
+      [1 => [$contributionId, 'Integer']]
+    );
+
+    $this->assertEquals($paymentInstrumentId, (int) $result);
+  }
+
+  /**
    * Tests createInstalment sets is_pay_later to 0.
    */
   public function testCreateInstalmentSetsIsPayLaterToZero(): void {
@@ -721,7 +760,7 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
    */
   private function getRecurRecord(int $recurId): RecurringContributionDTO {
     $recur = \Civi\Api4\ContributionRecur::get(FALSE)
-      ->addSelect('id', 'contact_id', 'amount', 'currency', 'financial_type_id', 'campaign_id', 'next_sched_contribution_date')
+      ->addSelect('id', 'contact_id', 'amount', 'currency', 'financial_type_id', 'campaign_id', 'payment_instrument_id', 'next_sched_contribution_date')
       ->addWhere('id', '=', $recurId)
       ->execute()
       ->first();
