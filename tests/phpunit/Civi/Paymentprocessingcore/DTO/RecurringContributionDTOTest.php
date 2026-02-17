@@ -23,6 +23,7 @@ class RecurringContributionDTOTest extends TestCase {
       'next_sched_contribution_date' => '2025-07-15',
       'frequency_unit:name' => 'week',
       'frequency_interval' => 2,
+      'payment_instrument_id' => 4,
     ];
 
     $dto = RecurringContributionDTO::fromApiResult($record);
@@ -36,6 +37,7 @@ class RecurringContributionDTOTest extends TestCase {
     $this->assertSame('2025-07-15', $dto->getNextSchedContributionDate());
     $this->assertSame('week', $dto->getFrequencyUnit());
     $this->assertSame(2, $dto->getFrequencyInterval());
+    $this->assertSame(4, $dto->getPaymentInstrumentId());
   }
 
   /**
@@ -102,6 +104,45 @@ class RecurringContributionDTOTest extends TestCase {
       'id' => 1,
       'contact_id' => 2,
     ]);
+  }
+
+  /**
+   * Tests that null payment_instrument_id returns null.
+   */
+  public function testFromApiResultWithNullPaymentInstrumentId(): void {
+    $record = [
+      'id' => 1,
+      'contact_id' => 2,
+      'amount' => 10.00,
+      'currency' => 'USD',
+      'financial_type_id' => 1,
+      'payment_instrument_id' => NULL,
+      'next_sched_contribution_date' => '2025-07-15',
+      'frequency_unit:name' => 'month',
+      'frequency_interval' => 1,
+    ];
+
+    $dto = RecurringContributionDTO::fromApiResult($record);
+
+    $this->assertNull($dto->getPaymentInstrumentId());
+  }
+
+  /**
+   * Tests that missing payment_instrument_id returns null.
+   */
+  public function testFromApiResultWithMissingPaymentInstrumentId(): void {
+    $record = [
+      'id' => 1,
+      'contact_id' => 2,
+      'amount' => 10.00,
+      'currency' => 'USD',
+      'financial_type_id' => 1,
+      'next_sched_contribution_date' => '2025-07-15',
+    ];
+
+    $dto = RecurringContributionDTO::fromApiResult($record);
+
+    $this->assertNull($dto->getPaymentInstrumentId());
   }
 
   /**

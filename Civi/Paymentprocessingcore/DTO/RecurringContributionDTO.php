@@ -56,6 +56,11 @@ class RecurringContributionDTO {
   private int $frequencyInterval;
 
   /**
+   * @var int|null
+   */
+  private ?int $paymentInstrumentId;
+
+  /**
    * Private constructor — use fromApiResult() factory method.
    *
    * @param int $id
@@ -76,6 +81,8 @@ class RecurringContributionDTO {
    *   Frequency unit (day, week, month, year).
    * @param int $frequencyInterval
    *   Frequency interval.
+   * @param int|null $paymentInstrumentId
+   *   Payment instrument ID or NULL.
    */
   private function __construct(
     int $id,
@@ -86,7 +93,8 @@ class RecurringContributionDTO {
     ?int $campaignId,
     string $nextSchedContributionDate,
     string $frequencyUnit,
-    int $frequencyInterval
+    int $frequencyInterval,
+    ?int $paymentInstrumentId
   ) {
     $this->id = $id;
     $this->contactId = $contactId;
@@ -97,6 +105,7 @@ class RecurringContributionDTO {
     $this->nextSchedContributionDate = $nextSchedContributionDate;
     $this->frequencyUnit = $frequencyUnit;
     $this->frequencyInterval = $frequencyInterval;
+    $this->paymentInstrumentId = $paymentInstrumentId;
   }
 
   /**
@@ -148,6 +157,10 @@ class RecurringContributionDTO {
       ? (int) $record['campaign_id']
       : NULL;
 
+    $paymentInstrumentId = isset($record['payment_instrument_id']) && is_numeric($record['payment_instrument_id'])
+      ? (int) $record['payment_instrument_id']
+      : NULL;
+
     return new self(
       (int) $id,
       (int) $contactId,
@@ -157,7 +170,8 @@ class RecurringContributionDTO {
       $campaignId,
       (string) $nextSchedDate,
       (string) $frequencyUnit,
-      (int) $frequencyInterval
+      (int) $frequencyInterval,
+      $paymentInstrumentId
     );
   }
 
@@ -222,6 +236,13 @@ class RecurringContributionDTO {
    */
   public function getFrequencyInterval(): int {
     return $this->frequencyInterval;
+  }
+
+  /**
+   * Get the payment instrument ID, or NULL if not set.
+   */
+  public function getPaymentInstrumentId(): ?int {
+    return $this->paymentInstrumentId;
   }
 
 }
