@@ -424,9 +424,9 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhookTest extends BaseHeadlessTest 
   }
 
   /**
-   * Tests resetStuckWebhooks finds and resets webhooks based on processing_started_at.
+   * Tests getStuckWebhooks finds webhooks based on processing_started_at.
    */
-  public function testResetStuckWebhooksUsesProcessingStartedAt(): void {
+  public function testGetStuckWebhooksFindsCorrectRecords(): void {
     // Create webhook stuck in processing (processing_started_at > 30 min ago)
     $stuckWebhook = PaymentWebhook::create([
       'event_id' => 'evt_test_stuck_1003',
@@ -452,36 +452,20 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhookTest extends BaseHeadlessTest 
     $this->assertNotNull($notStuckWebhook);
     $this->assertNotNull($notStuckWebhook->id);
 
-    // Reset stuck webhooks
-    $resetCount = PaymentWebhook::resetStuckWebhooks(30);
+    // Get stuck webhooks with 30 min timeout
+    $stuckResults = PaymentWebhook::getStuckWebhooks(30);
 
-    $this->assertEquals(1, $resetCount, 'Should reset 1 stuck webhook');
-
-    // Verify stuck webhook was reset to 'new'
-    $stuckWebhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
-      ->addWhere('id', '=', $stuckWebhook->id)
-      ->execute()
-      ->first();
-
-    $this->assertNotNull($stuckWebhookData);
-    $this->assertArrayHasKey('status', $stuckWebhookData);
-    $this->assertEquals('new', $stuckWebhookData['status'], 'Stuck webhook should be reset to new');
-
-    // Verify not-stuck webhook remains in processing
-    $notStuckWebhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
-      ->addWhere('id', '=', $notStuckWebhook->id)
-      ->execute()
-      ->first();
-
-    $this->assertNotNull($notStuckWebhookData);
-    $this->assertArrayHasKey('status', $notStuckWebhookData);
-    $this->assertEquals('processing', $notStuckWebhookData['status'], 'Not-stuck webhook should remain processing');
+    $this->assertCount(1, $stuckResults, 'Should find 1 stuck webhook');
+    $this->assertEquals($stuckWebhook->id, $stuckResults[0]['id']);
+    $this->assertArrayHasKey('attempts', $stuckResults[0]);
+    $this->assertArrayHasKey('processor_type', $stuckResults[0]);
+    $this->assertEquals('stripe', $stuckResults[0]['processor_type']);
   }
 
   /**
-   * Tests resetStuckWebhooks does not reset webhooks with NULL processing_started_at.
+   * Tests getStuckWebhooks does not return webhooks with NULL processing_started_at.
    */
-  public function testResetStuckWebhooksIgnoresNullProcessingStartedAt(): void {
+  public function testGetStuckWebhooksIgnoresNullProcessingStartedAt(): void {
     // Create webhook in processing but with NULL processing_started_at
     $webhook = PaymentWebhook::create([
       'event_id' => 'evt_test_null_1005',
@@ -494,18 +478,222 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhookTest extends BaseHeadlessTest 
     $this->assertNotNull($webhook);
     $this->assertNotNull($webhook->id);
 
-    // Reset stuck webhooks
-    $resetCount = PaymentWebhook::resetStuckWebhooks(30);
+    // Get stuck webhooks
+    $stuckResults = PaymentWebhook::getStuckWebhooks(30);
 
-    // Verify webhook was NOT reset
+    $this->assertEmpty($stuckResults, 'Webhook with NULL timestamp should not be found');
+
+    // Verify webhook is still processing
     $webhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
       ->addWhere('id', '=', $webhook->id)
       ->execute()
       ->first();
 
-    $this->assertNotNull($webhookData);
-    $this->assertArrayHasKey('status', $webhookData);
-    $this->assertEquals('processing', $webhookData['status'], 'Webhook with NULL timestamp should not be reset');
+    $this->assertEquals('processing', $webhookData['status']);
+  }
+
+  /**
+   * Tests getStuckWebhooks uses 1 day default timeout.
+   */
+  public function testGetStuckWebhooksDefaultTimeoutIsOneDay(): void {
+    // Create webhook stuck for 2 days (should be found)
+    $oldStuck = PaymentWebhook::create([
+      'event_id' => 'evt_test_old_stuck_1006',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 0,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
+    ]);
+
+    // Create webhook stuck for only 1 hour (should NOT be found with default)
+    $recentStuck = PaymentWebhook::create([
+      'event_id' => 'evt_test_recent_stuck_1007',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 0,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-1 hour')),
+    ]);
+
+    $this->assertNotNull($oldStuck->id);
+    $this->assertNotNull($recentStuck->id);
+
+    // Use default timeout (1 day)
+    $stuckResults = PaymentWebhook::getStuckWebhooks();
+
+    $this->assertCount(1, $stuckResults, 'Only webhook stuck > 1 day should be found');
+    $this->assertEquals($oldStuck->id, $stuckResults[0]['id']);
+  }
+
+  /**
+   * Tests batchResetStuckToNew increments attempts and sets status to new.
+   */
+  public function testBatchResetStuckToNewIncrementsAttempts(): void {
+    $webhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_batch_reset_1008',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 1,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
+    ]);
+
+    $this->assertNotNull($webhook->id);
+
+    PaymentWebhook::batchResetStuckToNew(
+      [(int) $webhook->id],
+      'Test reset'
+    );
+
+    $webhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $webhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertEquals('new', $webhookData['status']);
+    $this->assertEquals(2, $webhookData['attempts']);
+    $this->assertEquals('Test reset', $webhookData['error_log']);
+  }
+
+  /**
+   * Tests batchMarkStuckAsPermanentError sets correct status and fields.
+   */
+  public function testBatchMarkStuckAsPermanentError(): void {
+    $webhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_batch_perm_1009',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 2,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
+    ]);
+
+    $this->assertNotNull($webhook->id);
+
+    PaymentWebhook::batchMarkStuckAsPermanentError(
+      [(int) $webhook->id],
+      'Max retries exceeded'
+    );
+
+    $webhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $webhook->id)
+      ->execute()
+      ->first();
+
+    $this->assertEquals('permanent_error', $webhookData['status']);
+    $this->assertEquals('error', $webhookData['result']);
+    $this->assertEquals(3, $webhookData['attempts']);
+    $this->assertNotNull($webhookData['processed_at']);
+    $this->assertEquals('Max retries exceeded', $webhookData['error_log']);
+  }
+
+  /**
+   * Tests batchResetStuckToNew only updates webhooks in processing status.
+   */
+  public function testBatchResetStuckToNewOnlyUpdatesProcessingStatus(): void {
+    // Create a webhook already in 'new' status (should not be affected)
+    $newWebhook = PaymentWebhook::create([
+      'event_id' => 'evt_test_guard_1010',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'new',
+      'attempts' => 0,
+    ]);
+
+    $this->assertNotNull($newWebhook->id);
+
+    PaymentWebhook::batchResetStuckToNew(
+      [(int) $newWebhook->id],
+      'Should not update'
+    );
+
+    $webhookData = \Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addWhere('id', '=', $newWebhook->id)
+      ->execute()
+      ->first();
+
+    // Attempts should NOT have been incremented
+    $this->assertEquals(0, $webhookData['attempts']);
+    $this->assertEquals('new', $webhookData['status']);
+  }
+
+  /**
+   * Tests getOrphanedNewWebhooks excludes retry-flow webhooks.
+   */
+  public function testGetOrphanedNewWebhooksExcludesRetryFlow(): void {
+    // Orphan from stuck recovery: new, attempts > 0, no next_retry_at,
+    // has processing_started_at (was previously in 'processing')
+    $orphan = PaymentWebhook::create([
+      'event_id' => 'evt_test_orphan_1011',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'new',
+      'attempts' => 1,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-2 hours')),
+    ]);
+
+    // Retry-flow webhook: new, attempts > 0, HAS next_retry_at
+    $retryFlow = PaymentWebhook::create([
+      'event_id' => 'evt_test_retry_1012',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'new',
+      'attempts' => 1,
+      'next_retry_at' => date('Y-m-d H:i:s', strtotime('+10 minutes')),
+    ]);
+
+    // Fresh webhook: new, attempts = 0 (should not match)
+    $fresh = PaymentWebhook::create([
+      'event_id' => 'evt_test_fresh_1013',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'new',
+      'attempts' => 0,
+    ]);
+
+    $this->assertNotNull($orphan->id);
+    $this->assertNotNull($retryFlow->id);
+    $this->assertNotNull($fresh->id);
+
+    $results = PaymentWebhook::getOrphanedNewWebhooks('stripe');
+
+    $resultIds = array_column($results, 'id');
+    $this->assertContains($orphan->id, $resultIds, 'Orphan should be found');
+    $this->assertNotContains($retryFlow->id, $resultIds, 'Retry-flow webhook should be excluded');
+    $this->assertNotContains($fresh->id, $resultIds, 'Fresh webhook should be excluded');
+  }
+
+  /**
+   * Tests batchResetStuckToNew returns actual affected row count.
+   */
+  public function testBatchResetStuckToNewReturnsAffectedCount(): void {
+    $processing = PaymentWebhook::create([
+      'event_id' => 'evt_test_affected_1014',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'processing',
+      'attempts' => 0,
+      'processing_started_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
+    ]);
+
+    $notProcessing = PaymentWebhook::create([
+      'event_id' => 'evt_test_affected_1015',
+      'processor_type' => 'stripe',
+      'event_type' => 'payment_intent.succeeded',
+      'status' => 'new',
+      'attempts' => 0,
+    ]);
+
+    $this->assertNotNull($processing->id);
+    $this->assertNotNull($notProcessing->id);
+
+    $affected = PaymentWebhook::batchResetStuckToNew(
+      [(int) $processing->id, (int) $notProcessing->id],
+      'Test reset'
+    );
+
+    $this->assertEquals(1, $affected, 'Only the processing webhook should be affected');
   }
 
 }

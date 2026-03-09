@@ -58,8 +58,8 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
    * being processed by another worker, callers should skip it.
    *
    * Stuck webhooks (in 'processing' too long) are handled separately by
-   * resetStuckWebhooks() which resets their status to 'new', after which
-   * this method will return FALSE.
+   * the stuck recovery process in WebhookQueueRunnerService which resets
+   * their status to 'new', after which this method will return FALSE.
    *
    * @param string $eventId Processor event ID
    * @return bool TRUE if event is processed or being processed, FALSE otherwise
@@ -368,65 +368,147 @@ class CRM_Paymentprocessingcore_BAO_PaymentWebhook extends CRM_Paymentprocessing
   }
 
   /**
-   * Maximum number of stuck webhooks to reset per run.
+   * Maximum number of stuck webhooks to process per run.
    *
    * Prevents unbounded loop when many webhooks are stuck.
    */
   public const MAX_STUCK_RESET_LIMIT = 100;
 
   /**
-   * Reset stuck webhooks that have been processing for too long.
+   * Default timeout for stuck webhook detection (1 day in minutes).
+   */
+  public const DEFAULT_STUCK_TIMEOUT_MINUTES = 1440;
+
+  /**
+   * Find webhooks stuck in 'processing' state beyond the timeout.
    *
-   * Webhooks stuck in 'processing' for more than 30 minutes are reset to 'new'.
-   * This handles cases where the processor crashed mid-processing.
+   * Returns webhook records for the service layer to decide
+   * whether to retry or mark as permanent error.
    *
    * Limited to MAX_STUCK_RESET_LIMIT per run to prevent unbounded loops.
    *
    * @param int $timeoutMinutes Minutes after which to consider a webhook stuck
    *
-   * @return int Number of webhooks reset
+   * @return array List of stuck webhook records with id, attempts, processor_type
+   * @phpstan-return array<array{id: int, attempts: int, processor_type: string}>
    */
-  public static function resetStuckWebhooks(int $timeoutMinutes = 30): int {
+  public static function getStuckWebhooks(int $timeoutMinutes = self::DEFAULT_STUCK_TIMEOUT_MINUTES): array {
     $cutoff = date('Y-m-d H:i:s', strtotime("-{$timeoutMinutes} minutes"));
 
-    $stuckWebhooks = \Civi\Api4\PaymentWebhook::get(FALSE)
-      ->addSelect('id')
+    $webhooks = [];
+    foreach (\Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addSelect('id', 'attempts', 'processor_type')
       ->addWhere('status', '=', 'processing')
       ->addWhere('processing_started_at', 'IS NOT NULL')
       ->addWhere('processing_started_at', '<', $cutoff)
       ->setLimit(self::MAX_STUCK_RESET_LIMIT)
-      ->execute();
+      ->execute() as $webhook) {
+      $webhooks[] = $webhook;
+    }
+    return $webhooks;
+  }
 
-    $webhookIds = array_column($stuckWebhooks->getArrayCopy(), 'id');
+  /**
+   * Find orphaned webhooks in 'new' status from previous recovery.
+   *
+   * When stuck recovery resets a webhook to 'new' but the process crashes
+   * before re-queuing, the webhook is left in 'new' with attempts > 0.
+   * This method finds those orphaned webhooks so they can be re-queued.
+   *
+   * Distinguishes orphans from retry-flow webhooks by requiring:
+   * - next_retry_at IS NULL (retry-flow sets next_retry_at)
+   * - processing_started_at IS NOT NULL (stuck recovery resets from
+   *   'processing' which always has processing_started_at set)
+   *
+   * @param string $processorType Processor type filter
+   * @param int $limit Maximum number of webhooks to return
+   *
+   * @return array List of orphaned webhook records
+   * @phpstan-return array<array{id: int, processor_type: string}>
+   */
+  public static function getOrphanedNewWebhooks(string $processorType, int $limit = 50): array {
+    $webhooks = [];
+    foreach (\Civi\Api4\PaymentWebhook::get(FALSE)
+      ->addSelect('id', 'processor_type')
+      ->addWhere('processor_type', '=', $processorType)
+      ->addWhere('status', '=', 'new')
+      ->addWhere('attempts', '>', 0)
+      ->addWhere('next_retry_at', 'IS NULL')
+      ->addWhere('processing_started_at', 'IS NOT NULL')
+      ->setLimit($limit)
+      ->execute() as $webhook) {
+      $webhooks[] = $webhook;
+    }
+    return $webhooks;
+  }
 
-    if (empty($webhookIds)) {
+  /**
+   * Batch reset stuck webhooks to 'new' with incremented attempt counts.
+   *
+   * Uses a single SQL UPDATE for performance. Only updates webhooks
+   * that are still in 'processing' status (optimistic locking).
+   *
+   * @param array $ids Webhook IDs to reset
+   * @phpstan-param array<int> $ids
+   * @param string $errorLog Error message to record
+   *
+   * @return int Number of rows actually updated
+   */
+  public static function batchResetStuckToNew(array $ids, string $errorLog): int {
+    if (empty($ids)) {
       return 0;
     }
 
-    // Batch update all stuck webhooks at once (avoids N+1)
-    $idList = implode(',', array_map('intval', $webhookIds));
-    $errorLog = 'Reset from stuck processing state after ' . $timeoutMinutes . ' minutes';
+    $idList = implode(',', array_map('intval', $ids));
 
     $sql = "UPDATE civicrm_payment_webhook
-            SET status = 'new', error_log = %1
-            WHERE id IN ({$idList})";
+            SET status = 'new',
+                attempts = attempts + 1,
+                error_log = %1
+            WHERE id IN ({$idList})
+              AND status = 'processing'";
 
-    \CRM_Core_DAO::executeQuery($sql, [
+    $dao = \CRM_Core_DAO::executeQuery($sql, [
       1 => [$errorLog, 'String'],
     ]);
 
-    $count = count($webhookIds);
+    return $dao->affectedRows();
+  }
 
-    if ($count > 0) {
-      \Civi::log()->warning('Reset stuck webhooks', [
-        'count' => $count,
-        'timeout_minutes' => $timeoutMinutes,
-        'webhook_ids' => $webhookIds,
-        'limit_applied' => $count >= self::MAX_STUCK_RESET_LIMIT,
-      ]);
+  /**
+   * Batch mark stuck webhooks as permanent error with incremented attempts.
+   *
+   * Uses a single SQL UPDATE for performance. Only updates webhooks
+   * that are still in 'processing' status (optimistic locking).
+   *
+   * @param array $ids Webhook IDs to mark as permanent error
+   * @phpstan-param array<int> $ids
+   * @param string $errorLog Error message to record
+   *
+   * @return int Number of rows actually updated
+   */
+  public static function batchMarkStuckAsPermanentError(array $ids, string $errorLog): int {
+    if (empty($ids)) {
+      return 0;
     }
 
-    return $count;
+    $idList = implode(',', array_map('intval', $ids));
+
+    $sql = "UPDATE civicrm_payment_webhook
+            SET status = 'permanent_error',
+                result = 'error',
+                attempts = attempts + 1,
+                error_log = %1,
+                processed_at = %2
+            WHERE id IN ({$idList})
+              AND status = 'processing'";
+
+    $dao = \CRM_Core_DAO::executeQuery($sql, [
+      1 => [$errorLog, 'String'],
+      2 => [date('Y-m-d H:i:s'), 'String'],
+    ]);
+
+    return $dao->affectedRows();
   }
 
 }
