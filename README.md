@@ -159,8 +159,10 @@ $registry->addMethodCall('registerHandler', [
 ```
 
 **Features:**
-- Automatic retry with exponential backoff (5min → 15min → 45min)
-- Stuck webhook recovery (resets after 30 minutes)
+- Automatic retry with exponential backoff (5min → 15min → 45min, max 3 attempts)
+- Stuck webhook recovery (detects after 1 day, retries up to 3 times then marks as permanent error)
+- Orphaned webhook re-queuing (recovers from crashes during stuck recovery)
+- Optimistic locking to prevent race conditions between workers
 - Batch processing (250 events per processor per run)
 - Multi-processor auto-discovery
 
