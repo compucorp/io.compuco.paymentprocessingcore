@@ -36,6 +36,13 @@ class WebhookQueueRunnerService {
   private WebhookHandlerRegistry $registry;
 
   /**
+   * Whether stuck recovery has already run in this invocation.
+   *
+   * @var bool
+   */
+  private bool $stuckRecoveryDone = FALSE;
+
+  /**
    * WebhookQueueRunnerService constructor.
    *
    * @param \Civi\Paymentprocessingcore\Service\WebhookHandlerRegistry $registry
@@ -62,21 +69,18 @@ class WebhookQueueRunnerService {
   public function runAllQueues(int $batchSize = self::DEFAULT_BATCH_SIZE): array {
     $processorTypes = $this->registry->getRegisteredProcessorTypes();
 
-    // First, reset any stuck webhooks across all processors
-    $stuckReset = \CRM_Paymentprocessingcore_BAO_PaymentWebhook::resetStuckWebhooks();
+    // Recover stuck webhooks (crashed workers) across all processors
+    $stuckResult = $this->recoverStuckWebhooks();
 
     $results = [
       '_meta' => [
-        'stuck_webhooks_reset' => $stuckReset,
+        'stuck_webhooks_reset' => $stuckResult['reset_count'],
+        'stuck_webhooks_permanent_error' => $stuckResult['permanent_error_count'],
         'batch_size' => $batchSize,
       ],
     ];
 
     foreach ($processorTypes as $processorType) {
-      // First, re-queue any webhooks ready for retry
-      $this->requeueRetryableWebhooks($processorType);
-
-      // Then process the queue
       $results[$processorType] = $this->runQueue($processorType, $batchSize);
     }
 
@@ -99,11 +103,14 @@ class WebhookQueueRunnerService {
    *   items_failed, items_remaining
    */
   public function runQueue(string $processorType, int $batchSize = self::DEFAULT_BATCH_SIZE): array {
-    // Reset any stuck webhooks before processing
-    \CRM_Paymentprocessingcore_BAO_PaymentWebhook::resetStuckWebhooks();
+    // Recover stuck webhooks once per invocation (skipped if already done)
+    $this->recoverStuckWebhooks();
 
     // Re-queue any webhooks ready for retry
     $this->requeueRetryableWebhooks($processorType);
+
+    // Re-queue orphaned 'new' webhooks from previous stuck recovery
+    $this->requeueOrphanedNewWebhooks($processorType);
 
     /** @var \Civi\Paymentprocessingcore\Service\WebhookQueueService $queueService */
     $queueService = \Civi::service('paymentprocessingcore.webhook_queue');
@@ -199,6 +206,91 @@ class WebhookQueueRunnerService {
   }
 
   /**
+   * Recover webhooks stuck in 'processing' state due to worker crashes.
+   *
+   * Finds webhooks stuck for longer than the timeout (default: 1 day),
+   * increments their attempt count, and decides:
+   * - attempts < MAX_RETRY_ATTEMPTS: reset to 'new' and re-queue
+   * - attempts >= MAX_RETRY_ATTEMPTS: mark as permanent_error
+   *
+   * Uses batch SQL updates for performance (1 SELECT + at most 2 UPDATEs).
+   *
+   * @return array Summary with 'reset_count' and 'permanent_error_count'
+   * @phpstan-return array{reset_count: int, permanent_error_count: int}
+   */
+  private function recoverStuckWebhooks(): array {
+    if ($this->stuckRecoveryDone) {
+      return ['reset_count' => 0, 'permanent_error_count' => 0];
+    }
+    $this->stuckRecoveryDone = TRUE;
+
+    $stuckWebhooks = \CRM_Paymentprocessingcore_BAO_PaymentWebhook::getStuckWebhooks();
+
+    if (empty($stuckWebhooks)) {
+      return ['reset_count' => 0, 'permanent_error_count' => 0];
+    }
+
+    $maxAttempts = \CRM_Paymentprocessingcore_BAO_PaymentWebhook::MAX_RETRY_ATTEMPTS;
+    $errorLog = sprintf(
+      'Reset from stuck processing state after %d minutes',
+      \CRM_Paymentprocessingcore_BAO_PaymentWebhook::DEFAULT_STUCK_TIMEOUT_MINUTES
+    );
+
+    // Partition into retryable vs exceeded based on what attempt count will be
+    $retryableIds = [];
+    $exceededIds = [];
+    $retryableWebhooks = [];
+
+    foreach ($stuckWebhooks as $webhook) {
+      $nextAttempts = $webhook['attempts'] + 1;
+
+      if ($nextAttempts >= $maxAttempts) {
+        $exceededIds[] = (int) $webhook['id'];
+      }
+      else {
+        $retryableIds[] = (int) $webhook['id'];
+        $retryableWebhooks[] = $webhook;
+      }
+    }
+
+    // Batch update: retryable → 'new' with attempts+1
+    $resetCount = \CRM_Paymentprocessingcore_BAO_PaymentWebhook::batchResetStuckToNew(
+      $retryableIds,
+      $errorLog
+    );
+
+    // Batch update: exceeded → 'permanent_error' with attempts+1
+    $permanentErrorCount = \CRM_Paymentprocessingcore_BAO_PaymentWebhook::batchMarkStuckAsPermanentError(
+      $exceededIds,
+      sprintf('Max retries exceeded after stuck recovery. %s', $errorLog)
+    );
+
+    // Re-queue recovered webhooks
+    if (!empty($retryableWebhooks)) {
+      /** @var \Civi\Paymentprocessingcore\Service\WebhookQueueService $queueService */
+      $queueService = \Civi::service('paymentprocessingcore.webhook_queue');
+
+      foreach ($retryableWebhooks as $webhook) {
+        $queueService->addTask($webhook['processor_type'], (int) $webhook['id'], []);
+      }
+    }
+
+    if ($resetCount > 0 || $permanentErrorCount > 0) {
+      \Civi::log()->warning('Recovered stuck webhooks', [
+        'reset_to_new' => $resetCount,
+        'permanent_error' => $permanentErrorCount,
+        'reset_ids' => $retryableIds,
+        'permanent_error_ids' => $exceededIds,
+      ]);
+    }
+
+    return [
+      'reset_count' => $resetCount,
+      'permanent_error_count' => $permanentErrorCount,
+    ];
+  }
+
+  /**
    * Re-queue webhooks that are ready for retry.
    *
    * Finds webhooks with status='error' and next_retry_at <= NOW()
@@ -246,6 +338,44 @@ class WebhookQueueRunnerService {
         'webhook_ids' => $webhookIds,
       ]);
     }
+
+    return $count;
+  }
+
+  /**
+   * Re-queue orphaned 'new' webhooks from previous stuck recovery.
+   *
+   * When stuck recovery resets a webhook to 'new' but the process crashes
+   * before re-queuing, webhooks are left orphaned. This method finds
+   * those webhooks (status='new' with attempts > 0) and adds them
+   * back to the queue.
+   *
+   * @param string $processorType The processor type
+   *
+   * @return int Number of webhooks re-queued
+   */
+  private function requeueOrphanedNewWebhooks(string $processorType): int {
+    $webhooks = \CRM_Paymentprocessingcore_BAO_PaymentWebhook::getOrphanedNewWebhooks(
+      $processorType
+    );
+
+    if (empty($webhooks)) {
+      return 0;
+    }
+
+    /** @var \Civi\Paymentprocessingcore\Service\WebhookQueueService $queueService */
+    $queueService = \Civi::service('paymentprocessingcore.webhook_queue');
+
+    foreach ($webhooks as $webhook) {
+      $queueService->addTask($processorType, (int) $webhook['id'], []);
+    }
+
+    $count = count($webhooks);
+
+    \Civi::log()->info('Re-queued orphaned new webhooks', [
+      'processor_type' => $processorType,
+      'count' => $count,
+    ]);
 
     return $count;
   }

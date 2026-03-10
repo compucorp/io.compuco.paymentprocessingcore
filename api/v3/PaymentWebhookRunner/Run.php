@@ -16,7 +16,7 @@ use Civi\Paymentprocessingcore\Service\WebhookQueueRunnerService;
  * Features:
  * - Batch size limiting to prevent job timeouts (default: 250 per processor)
  * - Automatic retry of failed webhooks with exponential backoff
- * - Recovery of stuck webhooks (processing > 30 minutes)
+ * - Recovery of stuck webhooks (processing > 1 day) with attempt tracking
  *
  * @param array $params
  *   API parameters:

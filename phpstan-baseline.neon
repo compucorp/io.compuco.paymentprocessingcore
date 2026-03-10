@@ -46,6 +46,11 @@ parameters:
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
 		-
+			message: "#^Call to an undefined method object\\:\\:affectedRows\\(\\)\\.$#"
+			count: 2
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
 			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
@@ -72,6 +77,16 @@ parameters:
 
 		-
 			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:getStatuses\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:getOrphanedNewWebhooks\\(\\) should return array\\<array\\{id\\: int, processor_type\\: string\\}\\> but returns array\\<int\\<0, max\\>, mixed\\>\\.$#"
+			count: 1
+			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
+
+		-
+			message: "#^Method CRM_Paymentprocessingcore_BAO_PaymentWebhook\\:\\:getStuckWebhooks\\(\\) should return array\\<array\\{id\\: int, attempts\\: int, processor_type\\: string\\}\\> but returns array\\<int\\<0, max\\>, mixed\\>\\.$#"
 			count: 1
 			path: CRM/Paymentprocessingcore/BAO/PaymentWebhook.php
 
@@ -240,6 +255,7 @@ parameters:
 			count: 1
 			path: Civi/Paymentprocessingcore/Service/WebhookQueueRunnerService.php
 
+
 		-
 			message: "#^Method Civi\\\\Paymentprocessingcore\\\\Service\\\\WebhookQueueService\\:\\:addTask\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
@@ -382,7 +398,7 @@ parameters:
 
 		-
 			message: "#^Cannot access property \\$id on CRM_Paymentprocessingcore_DAO_PaymentWebhook\\|null\\.$#"
-			count: 4
+			count: 26
 			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
 
 		-
@@ -481,8 +497,33 @@ parameters:
 			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
 
 		-
+			message: "#^Offset 'attempts' does not exist on array\\|null\\.$#"
+			count: 4
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'error_log' does not exist on array\\|null\\.$#"
+			count: 2
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
 			message: "#^Offset 'id' does not exist on array\\|null\\.$#"
 			count: 2
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'processed_at' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'result' does not exist on array\\|null\\.$#"
+			count: 1
+			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
+
+		-
+			message: "#^Offset 'status' does not exist on array\\|null\\.$#"
+			count: 4
 			path: tests/phpunit/CRM/Paymentprocessingcore/BAO/PaymentWebhookTest.php
 
 		-
