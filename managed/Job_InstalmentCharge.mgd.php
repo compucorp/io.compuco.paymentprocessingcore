@@ -28,7 +28,7 @@ return [
       'api_entity' => 'InstalmentCharge',
       'api_action' => 'Run',
       'api_version' => 3,
-      'parameters' => "processor_type=Stripe\nbatch_size=500\nmax_retry_count=3",
+      'parameters' => "processor_type=Stripe Connect\nbatch_size=500\nmax_retry_count=3",
       'is_active' => 1,
     ],
   ],
