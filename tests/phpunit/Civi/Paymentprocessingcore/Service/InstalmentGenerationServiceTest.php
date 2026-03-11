@@ -8,7 +8,7 @@ use Civi\Paymentprocessingcore\Service\InstalmentGenerationService;
  *
  * Uses the built-in CiviCRM Dummy payment processor type for testing,
  * passing 'Dummy' as the processor_type parameter. The service and
- * scheduled job default to 'Stripe' in production, but the query is
+ * scheduled job default to 'Stripe Connect' in production, but the query is
  * fully parameterized to support any payment processor type.
  *
  * @group headless
@@ -389,6 +389,38 @@ class Civi_Paymentprocessingcore_Service_InstalmentGenerationServiceTest extends
     $results = $this->service->getDueRecurringContributions('NonExistent', 500);
 
     $this->assertCount(0, $results);
+  }
+
+  /**
+   * Tests DEFAULT_PROCESSOR_TYPE matches the managed job parameter.
+   *
+   * Regression test: the managed job definition must use the same processor
+   * type as the service default so that the job works out of the box.
+   */
+  public function testDefaultProcessorTypeMatchesManagedJobParameter(): void {
+    $managed = include __DIR__ . '/../../../../../managed/Job_InstalmentGenerator.mgd.php';
+
+    $this->assertIsArray($managed);
+    $this->assertArrayHasKey(0, $managed);
+    $params = $managed[0]['params'] ?? [];
+    $this->assertArrayHasKey('parameters', $params);
+
+    // Parse the newline-delimited job parameters.
+    $lines = explode("\n", $params['parameters']);
+    $jobParams = [];
+    foreach ($lines as $line) {
+      $parts = explode('=', $line, 2);
+      if (count($parts) === 2) {
+        $jobParams[trim($parts[0])] = trim($parts[1]);
+      }
+    }
+
+    $this->assertArrayHasKey('processor_type', $jobParams);
+    $this->assertEquals(
+      InstalmentGenerationService::DEFAULT_PROCESSOR_TYPE,
+      $jobParams['processor_type'],
+      'Managed job processor_type must match DEFAULT_PROCESSOR_TYPE constant'
+    );
   }
 
   /**
