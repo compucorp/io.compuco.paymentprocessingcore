@@ -24,7 +24,7 @@ class InstalmentGenerationService {
   /**
    * Default payment processor type.
    */
-  public const DEFAULT_PROCESSOR_TYPE = 'Stripe';
+  public const DEFAULT_PROCESSOR_TYPE = 'Stripe Connect';
 
   /**
    * Generate instalments for all due recurring contributions.

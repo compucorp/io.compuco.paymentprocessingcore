@@ -20,7 +20,7 @@ return [
       'api_entity' => 'InstalmentGenerator',
       'api_action' => 'Run',
       'api_version' => 3,
-      'parameters' => "processor_type=Stripe\nbatch_size=500",
+      'parameters' => "processor_type=Stripe Connect\nbatch_size=500",
       'is_active' => 1,
     ],
   ],
