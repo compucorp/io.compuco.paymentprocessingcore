@@ -42,7 +42,7 @@ function civicrm_api3_instalment_generator_Run(array $params): array {
 function _civicrm_api3_instalment_generator_Run_spec(array &$spec): void {
   $spec['processor_type'] = [
     'title' => 'Processor Type',
-    'description' => 'Payment processor type name. Default: "Stripe".',
+    'description' => 'Payment processor type name. Default: "Stripe Connect".',
     'type' => CRM_Utils_Type::T_STRING,
     'api.default' => InstalmentGenerationService::DEFAULT_PROCESSOR_TYPE,
   ];
