@@ -130,7 +130,11 @@ function _paymentprocessingcore_civix_civicrm_config($config = NULL) {
   $extRoot = __DIR__ . DIRECTORY_SEPARATOR;
   $include_path = $extRoot . PATH_SEPARATOR . get_include_path();
   set_include_path($include_path);
-  // Based on <compatibility>, this does not currently require mixin/polyfill.php.
+
+  if (!class_exists('CRM_Extension_MixInfo')) {
+    $f = include __DIR__ . '/mixin/polyfill.php';
+    $f(E::LONG_NAME, E::SHORT_NAME, __DIR__);
+  }
 }
 
 /**
@@ -140,7 +144,6 @@ function _paymentprocessingcore_civix_civicrm_config($config = NULL) {
  */
 function _paymentprocessingcore_civix_civicrm_install() {
   _paymentprocessingcore_civix_civicrm_config();
-  // Based on <compatibility>, this does not currently require mixin/polyfill.php.
 }
 
 /**
@@ -150,7 +153,6 @@ function _paymentprocessingcore_civix_civicrm_install() {
  */
 function _paymentprocessingcore_civix_civicrm_enable(): void {
   _paymentprocessingcore_civix_civicrm_config();
-  // Based on <compatibility>, this does not currently require mixin/polyfill.php.
 }
 
 /**
