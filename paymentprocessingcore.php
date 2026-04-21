@@ -33,6 +33,35 @@ function paymentprocessingcore_civicrm_enable(): void {
 }
 
 /**
+ * Implements hook_civicrm_entityTypes().
+ *
+ * Directly registers entity types to work around a mixin timing issue on
+ * CiviCRM 5.75: the entity-types-php@2 mixin is only loaded for installed
+ * extensions, so during installation the mixin listener is absent and
+ * EntityRepository cannot find our entities. This direct hook ensures entity
+ * types are always registered. When both this and the mixin fire, the result
+ * is identical (same data, same keys).
+ *
+ * @see https://compucorp.atlassian.net/browse/CIVIPLMMSR-623
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_entityTypes
+ */
+function paymentprocessingcore_civicrm_entityTypes(&$entityTypes): void {
+  $schemaDir = __DIR__ . '/schema';
+  if (!is_dir($schemaDir)) {
+    return;
+  }
+  $files = (array) glob($schemaDir . '/*.entityType.php');
+  foreach ($files as $file) {
+    $entity = include $file;
+    if (is_array($entity) && !empty($entity['name'])) {
+      $entity['module'] = E::LONG_NAME;
+      $entityTypes[$entity['name']] = $entity;
+    }
+  }
+}
+
+/**
  * Implements hook_civicrm_container().
  *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_container/
