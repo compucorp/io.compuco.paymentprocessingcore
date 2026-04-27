@@ -3,8 +3,8 @@
 
 # Files/directories Gemini should ignore during review
 ignore_patterns:
-  - "paymentprocessingcore.civix.php"
-  - "CRM/Paymentprocessingcore/DAO/*.php"
+  - "*.civix.php"
+  - "CRM/*/DAO/*.php"
   - "xml/schema/*.entityType.php"
   - "vendor/**"
   - "node_modules/**"
