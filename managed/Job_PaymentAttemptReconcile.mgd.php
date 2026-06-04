@@ -10,7 +10,7 @@
  * Parameters:
  * - processor_parameters: (required) Format: "[Stripe Connect,2],[GoCardless,6]"
  *   Each pair specifies [ProcessorType,ThresholdDays].
- * - batch_size: Max total attempts to reconcile (default: 100)
+ * - batch_size: Max total attempts to reconcile (default: 30)
  *
  * @see api/v3/PaymentAttemptReconcile/Run.php
  */
@@ -26,7 +26,7 @@ return [
       'api_entity' => 'PaymentAttemptReconcile',
       'api_action' => 'Run',
       'api_version' => 3,
-      'parameters' => "processor_parameters=[Stripe Connect,2],[GoCardless,6]\nbatch_size=100\nmax_retry_count=3",
+      'parameters' => "processor_parameters=[Stripe Connect,2],[GoCardless,6]\nbatch_size=30\nmax_retry_count=3",
       'is_active' => 1,
     ],
   ],
