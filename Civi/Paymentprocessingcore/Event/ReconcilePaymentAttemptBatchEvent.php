@@ -12,10 +12,12 @@ use Civi\Paymentprocessingcore\DTO\ReconcileAttemptResult;
  * their API for the real status of stuck payments and report results.
  *
  * Two usage patterns:
- * - Stripe: Uses getAttempts() to iterate PaymentAttempt records, calls
- *   setAttemptResult() for each.
- * - GoCardless: Uses getProcessorType()/getThresholdDays()/getRemainingBudget()
- *   as trigger + config; queries its own data internally.
+ * - PaymentAttempt-based (e.g. Stripe): iterate getAttempts() and call
+ *   setAttemptResult() for each; the core builds the run summary from those
+ *   results.
+ * - Custom-query (e.g. GoCardless): use getProcessorType()/getThresholdDays()/
+ *   getRemainingBudget() as trigger + config, reconcile own data internally, and
+ *   report totals via reportCounts() so they are included in the run summary.
  */
 class ReconcilePaymentAttemptBatchEvent extends GenericHookEvent {
 
@@ -30,6 +32,18 @@ class ReconcilePaymentAttemptBatchEvent extends GenericHookEvent {
    * @var array<int, \Civi\Paymentprocessingcore\DTO\ReconcileAttemptResult>
    */
   private array $results = [];
+
+  /**
+   * Counts reported directly by custom-query handlers.
+   *
+   * @var array{reconciled: int, unchanged: int, errored: int, unhandled: int}
+   */
+  private array $reportedCounts = [
+    'reconciled' => 0,
+    'unchanged' => 0,
+    'errored' => 0,
+    'unhandled' => 0,
+  ];
 
   /**
    * Constructor.
@@ -149,6 +163,39 @@ class ReconcilePaymentAttemptBatchEvent extends GenericHookEvent {
    */
   public function hasAttemptResult(int $attemptId): bool {
     return array_key_exists($attemptId, $this->results);
+  }
+
+  /**
+   * Report reconciliation counts directly, for handlers that do not use
+   * PaymentAttempt records (the custom-query pattern, e.g. GoCardless).
+   *
+   * Counts are additive, so a handler may call this more than once. Handlers
+   * using setAttemptResult() must not call this — the core counts their results
+   * separately, and mixing the two would double-count.
+   *
+   * @param int $reconciled
+   * @param int $unchanged
+   * @param int $errored
+   * @param int $unhandled
+   */
+  public function reportCounts(int $reconciled, int $unchanged = 0, int $errored = 0, int $unhandled = 0): void {
+    if ($reconciled < 0 || $unchanged < 0 || $errored < 0 || $unhandled < 0) {
+      throw new \InvalidArgumentException('Reconciliation counts must be non-negative');
+    }
+
+    $this->reportedCounts['reconciled'] += $reconciled;
+    $this->reportedCounts['unchanged'] += $unchanged;
+    $this->reportedCounts['errored'] += $errored;
+    $this->reportedCounts['unhandled'] += $unhandled;
+  }
+
+  /**
+   * Get the counts reported by custom-query handlers.
+   *
+   * @return array{reconciled: int, unchanged: int, errored: int, unhandled: int}
+   */
+  public function getReportedCounts(): array {
+    return $this->reportedCounts;
   }
 
 }
