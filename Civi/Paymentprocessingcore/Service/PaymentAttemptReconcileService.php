@@ -269,6 +269,16 @@ class PaymentAttemptReconcileService {
       }
     }
 
+    // Fold in counts reported by custom-query handlers (e.g. GoCardless), which
+    // reconcile their own data and report totals directly rather than through
+    // PaymentAttempt records. Handlers on the setAttemptResult() path (e.g.
+    // Stripe) do not call reportCounts(), so this adds zero for them.
+    $reported = $event->getReportedCounts();
+    $summary['reconciled'] += $reported['reconciled'];
+    $summary['unchanged'] += $reported['unchanged'];
+    $summary['errored'] += $reported['errored'];
+    $summary['unhandled'] += $reported['unhandled'];
+
     return $summary;
   }
 

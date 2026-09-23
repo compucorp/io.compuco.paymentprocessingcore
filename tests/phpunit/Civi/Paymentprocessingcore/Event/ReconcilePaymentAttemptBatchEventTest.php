@@ -242,4 +242,75 @@ class ReconcilePaymentAttemptBatchEventTest extends \BaseHeadlessTest {
     $this->assertNull($result->getCompletionData());
   }
 
+  // -------------------------------------------------------------------------
+  // Reported-counts tests (custom-query pattern, e.g. GoCardless)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Tests reported counts default to zero.
+   */
+  public function testReportedCountsDefaultToZero(): void {
+    $event = new ReconcilePaymentAttemptBatchEvent('GoCardless', [], 7, 50);
+
+    $this->assertEquals(
+      ['reconciled' => 0, 'unchanged' => 0, 'errored' => 0, 'unhandled' => 0],
+      $event->getReportedCounts()
+    );
+  }
+
+  /**
+   * Tests reportCounts records the reported totals.
+   */
+  public function testReportCountsRecordsTotals(): void {
+    $event = new ReconcilePaymentAttemptBatchEvent('GoCardless', [], 7, 50);
+
+    $event->reportCounts(99, 1, 2, 3);
+
+    $this->assertEquals(
+      ['reconciled' => 99, 'unchanged' => 1, 'errored' => 2, 'unhandled' => 3],
+      $event->getReportedCounts()
+    );
+  }
+
+  /**
+   * Tests reportCounts is additive across multiple calls.
+   */
+  public function testReportCountsIsAdditive(): void {
+    $event = new ReconcilePaymentAttemptBatchEvent('GoCardless', [], 7, 50);
+
+    $event->reportCounts(10, 1, 0, 0);
+    $event->reportCounts(5, 0, 2, 1);
+
+    $this->assertEquals(
+      ['reconciled' => 15, 'unchanged' => 1, 'errored' => 2, 'unhandled' => 1],
+      $event->getReportedCounts()
+    );
+  }
+
+  /**
+   * Tests reportCounts defaults the optional buckets to zero.
+   */
+  public function testReportCountsDefaultsOptionalBucketsToZero(): void {
+    $event = new ReconcilePaymentAttemptBatchEvent('GoCardless', [], 7, 50);
+
+    $event->reportCounts(4);
+
+    $this->assertEquals(
+      ['reconciled' => 4, 'unchanged' => 0, 'errored' => 0, 'unhandled' => 0],
+      $event->getReportedCounts()
+    );
+  }
+
+  /**
+   * Tests reportCounts rejects negative counts.
+   */
+  public function testReportCountsRejectsNegativeValues(): void {
+    $event = new ReconcilePaymentAttemptBatchEvent('GoCardless', [], 7, 50);
+
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Reconciliation counts must be non-negative');
+
+    $event->reportCounts(-1);
+  }
+
 }

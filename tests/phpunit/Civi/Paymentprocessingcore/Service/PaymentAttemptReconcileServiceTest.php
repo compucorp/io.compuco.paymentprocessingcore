@@ -875,6 +875,113 @@ class PaymentAttemptReconcileServiceTest extends \BaseHeadlessTest {
   }
 
   // -------------------------------------------------------------------------
+  // Reported-counts tests (custom-query pattern, e.g. GoCardless)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Tests that counts reported via reportCounts() appear in the run summary,
+   * even with zero PaymentAttempt records (the GoCardless pattern).
+   */
+  public function testReportedCountsFromCustomQueryHandlerAppearInSummary(): void {
+    // No PaymentAttempt records are created — GoCardless does not use them.
+    $subscriber = function (ReconcilePaymentAttemptBatchEvent $event): void {
+      if ($event->getProcessorType() === 'GoCardless') {
+        $event->reportCounts(99, 1, 2, 3);
+      }
+    };
+    \Civi::dispatcher()->addListener(ReconcilePaymentAttemptBatchEvent::NAME, $subscriber, -10);
+
+    try {
+      $result = $this->service->reconcileStuckAttempts(['GoCardless' => 7], 100);
+
+      $this->assertEquals(99, $result['reconciled']);
+      $this->assertEquals(1, $result['unchanged']);
+      $this->assertEquals(2, $result['errored']);
+      $this->assertEquals(3, $result['unhandled']);
+    }
+    finally {
+      \Civi::dispatcher()->removeListener(ReconcilePaymentAttemptBatchEvent::NAME, $subscriber);
+    }
+  }
+
+  /**
+   * Regression guard for the PaymentAttempt/setAttemptResult() path (e.g.
+   * Stripe): a handler that reconciles via setAttemptResult() and never calls
+   * reportCounts() must produce exactly the same summary as before, and the
+   * reported-counts channel must stay empty.
+   */
+  public function testSetAttemptResultPathUnaffectedWhenNoCountsReported(): void {
+    $this->createStuckPaymentAttempt([
+      'processor_type' => 'dummy',
+      'days_ago' => 5,
+    ]);
+
+    $reportedDuringRun = NULL;
+    $subscriber = function (ReconcilePaymentAttemptBatchEvent $event) use (&$reportedDuringRun): void {
+      foreach ($event->getAttempts() as $attemptId => $attempt) {
+        $event->setAttemptResult($attemptId, new ReconcileAttemptResult('completed', 'PI succeeded'));
+      }
+      // A PaymentAttempt-based handler never touches the reported-counts channel.
+      $reportedDuringRun = $event->getReportedCounts();
+    };
+    \Civi::dispatcher()->addListener(ReconcilePaymentAttemptBatchEvent::NAME, $subscriber, -10);
+
+    try {
+      $result = $this->service->reconcileStuckAttempts([self::PROCESSOR_TYPE => 3], 100);
+
+      $this->assertEquals(1, $result['reconciled']);
+      $this->assertEquals(0, $result['unchanged']);
+      $this->assertEquals(0, $result['errored']);
+      $this->assertEquals(0, $result['unhandled']);
+      $this->assertEquals(
+        ['reconciled' => 0, 'unchanged' => 0, 'errored' => 0, 'unhandled' => 0],
+        $reportedDuringRun
+      );
+    }
+    finally {
+      \Civi::dispatcher()->removeListener(ReconcilePaymentAttemptBatchEvent::NAME, $subscriber);
+    }
+  }
+
+  /**
+   * Tests that a PaymentAttempt-based processor (setAttemptResult) and a
+   * custom-query processor (reportCounts) in the same run sum correctly,
+   * without double-counting.
+   */
+  public function testSetAttemptResultAndReportedCountsCombineWithoutDoubleCounting(): void {
+    // One Dummy attempt reconciled via setAttemptResult().
+    $this->createStuckPaymentAttempt([
+      'processor_type' => 'dummy',
+      'days_ago' => 5,
+    ]);
+
+    $subscriber = function (ReconcilePaymentAttemptBatchEvent $event): void {
+      if ($event->getProcessorType() === self::PROCESSOR_TYPE) {
+        foreach ($event->getAttempts() as $attemptId => $attempt) {
+          $event->setAttemptResult($attemptId, new ReconcileAttemptResult('completed', 'PI succeeded'));
+        }
+      }
+      if ($event->getProcessorType() === 'GoCardless') {
+        $event->reportCounts(50, 0, 0, 0);
+      }
+    };
+    \Civi::dispatcher()->addListener(ReconcilePaymentAttemptBatchEvent::NAME, $subscriber, -10);
+
+    try {
+      $result = $this->service->reconcileStuckAttempts([
+        self::PROCESSOR_TYPE => 3,
+        'GoCardless' => 7,
+      ], 100);
+
+      // 1 from the Dummy attempt path + 50 reported by the custom-query path.
+      $this->assertEquals(51, $result['reconciled']);
+    }
+    finally {
+      \Civi::dispatcher()->removeListener(ReconcilePaymentAttemptBatchEvent::NAME, $subscriber);
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // Helper methods
   // -------------------------------------------------------------------------
 
