@@ -4,6 +4,7 @@ namespace Civi\Paymentprocessingcore\Service;
 
 use Civi\Api4\Contribution;
 use Civi\Api4\ContributionPage;
+use Civi\Api4\PaymentAttempt;
 use Civi\Paymentprocessingcore\Exception\ContributionCompletionException;
 
 /**
@@ -26,6 +27,9 @@ class ContributionCompletionService {
    * @param string $transactionId Payment processor transaction ID (e.g., Stripe charge ID ch_..., GoCardless payment ID pm_...)
    * @param float|null $feeAmount Optional fee amount charged by payment processor
    * @param bool|null $sendReceipt Whether to send email receipt. If NULL, will check contribution page settings. Default: NULL
+   * @param int|null $paymentProcessorId Payment processor that took the payment. If NULL, it is resolved from the
+   *   contribution's payment attempts or its recurring contribution. Recording it on the financial transaction is what
+   *   allows downstream features (for example Finance Extras refunds) to know which processor to refund through.
    *
    * @return array<string, mixed> Completion result with keys: 'success' => TRUE, 'contribution_id' => int, 'already_completed' => bool
    *
@@ -33,7 +37,7 @@ class ContributionCompletionService {
    *
    * @throws \Civi\Paymentprocessingcore\Exception\ContributionCompletionException If completion fails
    */
-  public function complete(int $contributionId, string $transactionId, ?float $feeAmount = NULL, ?bool $sendReceipt = NULL): array {
+  public function complete(int $contributionId, string $transactionId, ?float $feeAmount = NULL, ?bool $sendReceipt = NULL, ?int $paymentProcessorId = NULL): array {
     $contribution = $this->getContribution($contributionId);
 
     // Check if already completed (idempotency)
@@ -58,8 +62,12 @@ class ContributionCompletionService {
       $sendReceipt = $this->shouldSendReceipt($contribution);
     }
 
+    if ($paymentProcessorId === NULL) {
+      $paymentProcessorId = $this->resolvePaymentProcessorId($contribution);
+    }
+
     // Complete the transaction
-    $this->completeTransaction($contribution, $transactionId, $feeAmount, $sendReceipt);
+    $this->completeTransaction($contribution, $transactionId, $feeAmount, $sendReceipt, $paymentProcessorId);
 
     return [
       'success' => TRUE,
@@ -80,7 +88,7 @@ class ContributionCompletionService {
   private function getContribution(int $contributionId): array {
     try {
       $contribution = Contribution::get(FALSE)
-        ->addSelect('id', 'contribution_status_id:name', 'total_amount', 'currency', 'contribution_page_id', 'trxn_id')
+        ->addSelect('id', 'contribution_status_id:name', 'total_amount', 'currency', 'contribution_page_id', 'trxn_id', 'contribution_recur_id.payment_processor_id')
         ->addWhere('id', '=', $contributionId)
         ->execute()
         ->first();
@@ -104,6 +112,61 @@ class ContributionCompletionService {
         $e
       );
     }
+  }
+
+  /**
+   * Work out which payment processor took the payment.
+   *
+   * Callers that know the processor should pass it in. When they do not, the payment attempt recorded for the
+   * contribution is the most reliable source, since every processor that uses this service records one. Recurring
+   * contributions carry the processor themselves, so they are used as a second source.
+   *
+   * A contribution can only have one payment attempt - contribution_id is unique on the table.
+   *
+   * Resolution never blocks completion: if it fails, the contribution still completes, only without the processor
+   * recorded on the financial transaction.
+   *
+   * @param array $contribution Contribution data
+   *
+   * @phpstan-param array<string, mixed> $contribution
+   *
+   * @return int|null Payment processor ID, or NULL when it cannot be determined
+   */
+  private function resolvePaymentProcessorId(array $contribution): ?int {
+    try {
+      $attempt = PaymentAttempt::get(FALSE)
+        ->addSelect('payment_processor_id')
+        ->addWhere('contribution_id', '=', $contribution['id'])
+        ->addWhere('payment_processor_id', 'IS NOT NULL')
+        ->addOrderBy('id', 'DESC')
+        ->setLimit(1)
+        ->execute()
+        ->first();
+
+      $attemptProcessorId = is_array($attempt) ? ($attempt['payment_processor_id'] ?? NULL) : NULL;
+      if (is_numeric($attemptProcessorId)) {
+        return (int) $attemptProcessorId;
+      }
+    }
+    catch (\Exception $e) {
+      \Civi::log()->warning('ContributionCompletionService: Failed to resolve payment processor from payment attempts', [
+        'contribution_id' => $contribution['id'],
+        'error' => $e->getMessage(),
+      ]);
+    }
+
+    $recurProcessorId = $contribution['contribution_recur_id.payment_processor_id'] ?? NULL;
+    if (is_numeric($recurProcessorId)) {
+      return (int) $recurProcessorId;
+    }
+
+    // Back office payments have neither a payment attempt nor a recurring contribution, so this is
+    // an ordinary outcome rather than something to flag.
+    \Civi::log()->info('ContributionCompletionService: No payment processor to record against the contribution', [
+      'contribution_id' => $contribution['id'],
+    ]);
+
+    return NULL;
   }
 
   /**
@@ -183,12 +246,13 @@ class ContributionCompletionService {
    * @param string $transactionId Payment processor transaction ID
    * @param float|null $feeAmount Optional fee amount
    * @param bool $sendReceipt Whether to send email receipt
+   * @param int|null $paymentProcessorId Payment processor that took the payment, recorded on the financial transaction
    *
    * @return void
    *
    * @throws \Civi\Paymentprocessingcore\Exception\ContributionCompletionException If completion fails
    */
-  private function completeTransaction(array $contribution, string $transactionId, ?float $feeAmount, bool $sendReceipt): void {
+  private function completeTransaction(array $contribution, string $transactionId, ?float $feeAmount, bool $sendReceipt, ?int $paymentProcessorId = NULL): void {
     try {
       $params = [
         'id' => $contribution['id'],
@@ -201,6 +265,12 @@ class ContributionCompletionService {
         $params['fee_amount'] = $feeAmount;
       }
 
+      // Core records this against the financial transaction it creates, which is how refunds know
+      // which processor to go back through. Without it the transaction is left with no processor.
+      if ($paymentProcessorId !== NULL) {
+        $params['payment_processor_id'] = $paymentProcessorId;
+      }
+
       civicrm_api3('Contribution', 'completetransaction', $params);
 
       \Civi::log()->info('ContributionCompletionService: Contribution completed successfully', [
@@ -210,6 +280,7 @@ class ContributionCompletionService {
         'amount' => $contribution['total_amount'],
         'currency' => $contribution['currency'],
         'receipt_sent' => $sendReceipt,
+        'payment_processor_id' => $paymentProcessorId,
       ]);
     }
     catch (\CiviCRM_API3_Exception $e) {

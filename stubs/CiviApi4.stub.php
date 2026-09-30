@@ -113,6 +113,16 @@ namespace Civi\Api4 {
    * @method static DAOUpdateAction update(bool $checkPermissions = TRUE)
    * @method static DAODeleteAction delete(bool $checkPermissions = TRUE)
    */
+  class EntityFinancialTrxn {
+
+  }
+
+  /**
+   * @method static DAOGetAction get(bool $checkPermissions = TRUE)
+   * @method static DAOCreateAction create(bool $checkPermissions = TRUE)
+   * @method static DAOUpdateAction update(bool $checkPermissions = TRUE)
+   * @method static DAODeleteAction delete(bool $checkPermissions = TRUE)
+   */
   class OptionValue {
 
   }
