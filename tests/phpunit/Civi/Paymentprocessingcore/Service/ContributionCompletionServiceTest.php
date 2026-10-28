@@ -9,6 +9,7 @@ use Civi\Api4\ContributionRecur;
 use Civi\Api4\EntityFinancialTrxn;
 use Civi\Api4\PaymentAttempt;
 use Civi\Api4\PaymentProcessor;
+use Civi\Core\Event\GenericHookEvent;
 use Civi\Paymentprocessingcore\Exception\ContributionCompletionException;
 
 /**
@@ -34,6 +35,20 @@ class ContributionCompletionServiceTest extends \BaseHeadlessTest {
   private $contributionPageId;
 
   /**
+   * Workflow names of template mails (receipts) sent during the test.
+   *
+   * @var array<int, string>
+   */
+  private array $sentMails = [];
+
+  /**
+   * Listener that records each template mail in $sentMails.
+   *
+   * @var callable
+   */
+  private $mailSpy;
+
+  /**
    * Set up test fixtures.
    */
   public function setUp(): void {
@@ -42,11 +57,12 @@ class ContributionCompletionServiceTest extends \BaseHeadlessTest {
     // Get service from container
     $this->service = \Civi::service('paymentprocessingcore.contribution_completion');
 
-    // Create test contact
+    // Create test contact (with an email so receipts can be sent)
     $this->contactId = Contact::create(FALSE)
       ->addValue('contact_type', 'Individual')
       ->addValue('first_name', 'Test')
       ->addValue('last_name', 'Donor')
+      ->addValue('email_primary.email', 'test.donor@example.org')
       ->execute()
       ->first()['id'];
 
@@ -57,6 +73,30 @@ class ContributionCompletionServiceTest extends \BaseHeadlessTest {
       ->addValue('is_email_receipt', TRUE)
       ->execute()
       ->first()['id'];
+
+    $this->sentMails = [];
+    $this->mailSpy = function (GenericHookEvent $event): void {
+      // alterMailParams hook values are [0 => $params, 1 => $context].
+      $hookValues = $event->getHookValues();
+      $params = $hookValues[0] ?? NULL;
+      $context = $hookValues[1] ?? NULL;
+      if ($context !== 'messageTemplate' || !is_array($params)) {
+        return;
+      }
+      $workflow = $params['workflow'] ?? $params['valueName'] ?? NULL;
+      if (is_string($workflow)) {
+        $this->sentMails[] = $workflow;
+      }
+    };
+    \Civi::dispatcher()->addListener('hook_civicrm_alterMailParams', $this->mailSpy);
+  }
+
+  /**
+   * Remove the mail spy listener.
+   */
+  public function tearDown(): void {
+    \Civi::dispatcher()->removeListener('hook_civicrm_alterMailParams', $this->mailSpy);
+    parent::tearDown();
   }
 
   /**
@@ -286,6 +326,103 @@ class ContributionCompletionServiceTest extends \BaseHeadlessTest {
   }
 
   /**
+   * Tests receipt is sent for a recurring instalment with no contribution page.
+   *
+   * Instalments created by the scheduled job only have contribution_recur_id,
+   * so the recurring contribution's is_email_receipt setting must be used.
+   */
+  public function testSendsReceiptWhenRecurringContributionIsSetToReceipt(): void {
+    $recurId = $this->createRecurringContribution(NULL, TRUE);
+    $contributionId = $this->createPendingContribution(100.00, NULL, $recurId);
+
+    $this->service->complete($contributionId, 'ch_test_recur_receipt');
+
+    $this->assertContributionCompleted($contributionId);
+    $this->assertReceiptSent();
+  }
+
+  /**
+   * Tests no receipt is sent when the recurring contribution disables receipts.
+   */
+  public function testDoesNotSendReceiptWhenRecurringContributionIsNotSetToReceipt(): void {
+    $recurId = $this->createRecurringContribution(NULL, FALSE);
+    $contributionId = $this->createPendingContribution(100.00, NULL, $recurId);
+
+    $this->service->complete($contributionId, 'ch_test_recur_no_receipt');
+
+    $this->assertContributionCompleted($contributionId);
+    $this->assertNoReceiptSent();
+  }
+
+  /**
+   * Tests the contribution page setting takes precedence over the recurring one.
+   */
+  public function testContributionPageSettingTakesPrecedenceOverRecurringContribution(): void {
+    $recurId = $this->createRecurringContribution(NULL, FALSE);
+    $contributionId = $this->createPendingContribution(100.00, $this->contributionPageId, $recurId);
+
+    $this->service->complete($contributionId, 'ch_test_page_over_recur');
+
+    $this->assertContributionCompleted($contributionId);
+    $this->assertReceiptSent();
+  }
+
+  /**
+   * Tests a page set not to receipt wins over a recur left at the DB default.
+   *
+   * webform_civicrm creates the recurring contribution without
+   * is_email_receipt, so it gets the DB default of 1. The first payment must
+   * still follow the page and not send a receipt.
+   */
+  public function testDoesNotSendReceiptWhenPageIsNotSetToReceiptAndRecurUsesDefault(): void {
+    $noReceiptPageId = $this->createContributionPage(FALSE);
+    $recurId = $this->createRecurringContribution(NULL);
+    $contributionId = $this->createPendingContribution(100.00, $noReceiptPageId, $recurId);
+
+    $this->service->complete($contributionId, 'ch_test_webform_first_payment');
+
+    $this->assertContributionCompleted($contributionId);
+    $this->assertNoReceiptSent();
+  }
+
+  /**
+   * Tests contribution page setting is used for non-recurring contributions.
+   */
+  public function testSendsReceiptWhenContributionPageIsSetToReceipt(): void {
+    $contributionId = $this->createPendingContribution(100.00, $this->contributionPageId);
+
+    $this->service->complete($contributionId, 'ch_test_page_receipt');
+
+    $this->assertContributionCompleted($contributionId);
+    $this->assertReceiptSent();
+  }
+
+  /**
+   * Tests no receipt is sent without a contribution page or recurring record.
+   */
+  public function testDoesNotSendReceiptWithoutContributionPageOrRecurringContribution(): void {
+    $contributionId = $this->createPendingContribution();
+
+    $this->service->complete($contributionId, 'ch_test_no_page_no_recur');
+
+    $this->assertContributionCompleted($contributionId);
+    $this->assertNoReceiptSent();
+  }
+
+  /**
+   * Tests an explicit $sendReceipt overrides the recurring contribution setting.
+   */
+  public function testExplicitSendReceiptOverridesRecurringContributionSetting(): void {
+    $recurId = $this->createRecurringContribution(NULL, TRUE);
+    $contributionId = $this->createPendingContribution(100.00, NULL, $recurId);
+
+    $this->service->complete($contributionId, 'ch_test_explicit_no_receipt', NULL, FALSE);
+
+    $this->assertContributionCompleted($contributionId);
+    $this->assertNoReceiptSent();
+  }
+
+  /**
    * Tests service is accessible via container.
    */
   public function testServiceAccessibleViaContainer(): void {
@@ -332,6 +469,18 @@ class ContributionCompletionServiceTest extends \BaseHeadlessTest {
   }
 
   /**
+   * Helper: Create a contribution page with the given receipt setting.
+   */
+  private function createContributionPage(bool $isEmailReceipt): int {
+    return $this->idOf(ContributionPage::create(FALSE)
+      ->addValue('title', 'Test Contribution Page ' . uniqid())
+      ->addValue('financial_type_id:name', 'Donation')
+      ->addValue('is_email_receipt', $isEmailReceipt)
+      ->execute()
+      ->first());
+  }
+
+  /**
    * Helper: Create an active payment processor.
    */
   private function createPaymentProcessor(): int {
@@ -364,19 +513,78 @@ class ContributionCompletionServiceTest extends \BaseHeadlessTest {
   }
 
   /**
-   * Helper: Create a recurring contribution against a payment processor.
+   * Helper: Create a recurring contribution.
+   *
+   * @param int|null $paymentProcessorId
+   *   Payment processor to link, if any.
+   * @param bool|null $isEmailReceipt
+   *   Receipt setting to store, or NULL to leave the default.
    */
-  private function createRecurringContribution(int $paymentProcessorId): int {
-    return $this->idOf(ContributionRecur::create(FALSE)
+  private function createRecurringContribution(?int $paymentProcessorId, ?bool $isEmailReceipt = NULL): int {
+    $recur = ContributionRecur::create(FALSE)
       ->addValue('contact_id', $this->contactId)
       ->addValue('amount', 100.00)
       ->addValue('currency', 'GBP')
       ->addValue('frequency_unit:name', 'month')
       ->addValue('frequency_interval', 1)
-      ->addValue('payment_processor_id', $paymentProcessorId)
-      ->addValue('contribution_status_id:name', 'Pending')
+      ->addValue('contribution_status_id:name', 'Pending');
+
+    if ($paymentProcessorId !== NULL) {
+      $recur->addValue('payment_processor_id', $paymentProcessorId);
+    }
+
+    if ($isEmailReceipt !== NULL) {
+      $recur->addValue('is_email_receipt', $isEmailReceipt);
+    }
+
+    return $this->idOf($recur->execute()->first());
+  }
+
+  /**
+   * Helper: Assert the contribution is Completed.
+   */
+  private function assertContributionCompleted(int $contributionId): void {
+    $contribution = Contribution::get(FALSE)
+      ->addSelect('contribution_status_id:name')
+      ->addWhere('id', '=', $contributionId)
       ->execute()
-      ->first());
+      ->first();
+
+    $this->assertIsArray($contribution);
+    $this->assertSame('Completed', $contribution['contribution_status_id:name']);
+  }
+
+  /**
+   * Helper: Assert a contribution receipt was sent.
+   */
+  private function assertReceiptSent(): void {
+    $this->assertNotEmpty(
+      $this->getSentContributionReceipts(),
+      'Expected a contribution receipt to be sent'
+    );
+  }
+
+  /**
+   * Helper: Assert no contribution receipt was sent.
+   */
+  private function assertNoReceiptSent(): void {
+    $this->assertSame(
+      [],
+      $this->getSentContributionReceipts(),
+      'Expected no contribution receipt to be sent'
+    );
+  }
+
+  /**
+   * Helper: Get sent contribution receipt workflow names.
+   *
+   * @return array<int, string>
+   */
+  private function getSentContributionReceipts(): array {
+    return array_values(array_filter(
+      $this->sentMails,
+      static fn (string $workflow): bool => strpos($workflow, 'contribution_') === 0
+    ));
   }
 
   /**

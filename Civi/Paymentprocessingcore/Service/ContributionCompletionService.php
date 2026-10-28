@@ -26,7 +26,7 @@ class ContributionCompletionService {
    * @param int $contributionId CiviCRM contribution ID
    * @param string $transactionId Payment processor transaction ID (e.g., Stripe charge ID ch_..., GoCardless payment ID pm_...)
    * @param float|null $feeAmount Optional fee amount charged by payment processor
-   * @param bool|null $sendReceipt Whether to send email receipt. If NULL, will check contribution page settings. Default: NULL
+   * @param bool|null $sendReceipt Whether to send email receipt. If NULL, will check the contribution page setting, or the recurring contribution setting when there is no page. Default: NULL
    * @param int|null $paymentProcessorId Payment processor that took the payment. If NULL, it is resolved from the
    *   contribution's payment attempts or its recurring contribution. Recording it on the financial transaction is what
    *   allows downstream features (for example Finance Extras refunds) to know which processor to refund through.
@@ -88,7 +88,7 @@ class ContributionCompletionService {
   private function getContribution(int $contributionId): array {
     try {
       $contribution = Contribution::get(FALSE)
-        ->addSelect('id', 'contribution_status_id:name', 'total_amount', 'currency', 'contribution_page_id', 'trxn_id', 'contribution_recur_id.payment_processor_id')
+        ->addSelect('id', 'contribution_status_id:name', 'total_amount', 'currency', 'contribution_page_id', 'trxn_id', 'contribution_recur_id', 'contribution_recur_id.payment_processor_id', 'contribution_recur_id.is_email_receipt')
         ->addWhere('id', '=', $contributionId)
         ->execute()
         ->first();
@@ -202,13 +202,33 @@ class ContributionCompletionService {
   }
 
   /**
-   * Determine if receipt should be sent based on contribution page settings.
+   * Determine if a receipt should be sent for the contribution.
    *
    * @param array $contribution Contribution data
+   *
+   * @phpstan-param array<string, mixed> $contribution
    *
    * @return bool TRUE if receipt should be sent
    */
   private function shouldSendReceipt(array $contribution): bool {
+    if (!empty($contribution['contribution_page_id'])) {
+      return $this->getContributionPageReceiptSetting($contribution);
+    }
+
+    return is_numeric($contribution['contribution_recur_id'] ?? NULL)
+      && !empty($contribution['contribution_recur_id.is_email_receipt']);
+  }
+
+  /**
+   * Get the is_email_receipt setting from the contribution page.
+   *
+   * @param array $contribution Contribution data
+   *
+   * @phpstan-param array<string, mixed> $contribution
+   *
+   * @return bool TRUE if the contribution page is set to send receipts
+   */
+  private function getContributionPageReceiptSetting(array $contribution): bool {
     if (empty($contribution['contribution_page_id'])) {
       // No contribution page (e.g., backend contribution) - default to no receipt
       return FALSE;
@@ -225,7 +245,7 @@ class ContributionCompletionService {
     }
     catch (\Exception $e) {
       \Civi::log()->warning('ContributionCompletionService: Failed to load contribution page settings', [
-        'contribution_id' => $contribution['id'],
+        'contribution_id' => $contribution['id'] ?? NULL,
         'contribution_page_id' => $contribution['contribution_page_id'],
         'error' => $e->getMessage(),
       ]);
