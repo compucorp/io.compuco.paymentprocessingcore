@@ -86,6 +86,26 @@ class InstalmentChargeServiceTest extends \BaseHeadlessTest {
   }
 
   /**
+   * Tests that pay-later contributions are selected.
+   *
+   * Membership payment plan instalments are pay later (invoices), and must be
+   * charged like any other due instalment.
+   */
+  public function testSelectsPayLaterContributions(): void {
+    $fixtures = $this->createTestFixtures([
+      'contribution_status' => 'Pending',
+      'receive_date' => date('Y-m-d', strtotime('-1 day')),
+      'is_pay_later' => TRUE,
+    ]);
+
+    $result = $this->service->chargeInstalments([self::PROCESSOR_TYPE], 500, 3);
+
+    $this->assertEquals(1, $result['charged']);
+    $this->assertCount(1, $this->capturedEvents);
+    $this->assertArrayHasKey((int) $fixtures['contribution_id'], $this->capturedEvents[0]->getItems());
+  }
+
+  /**
    * Tests that Partially paid contributions are selected.
    */
   public function testSelectsPartiallyPaidContributions(): void {
@@ -641,6 +661,7 @@ class InstalmentChargeServiceTest extends \BaseHeadlessTest {
       'receive_date' => $options['receive_date'] ?? date('Y-m-d'),
       'total_amount' => $totalAmount,
       'currency' => $options['currency'] ?? 'GBP',
+      'is_pay_later' => $options['is_pay_later'] ?? FALSE,
     ]);
 
     // Note: paid_amount is a computed field, not a real column.
